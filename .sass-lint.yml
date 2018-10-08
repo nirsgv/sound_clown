@@ -1,0 +1,22 @@
+files:
+  include: '**/*.scss'
+options:
+  formatter: stylish
+  merge-default-rules: false
+rules:
+  # Extends
+  extends-before-declarations: 1
+  extends-before-mixins: 1
+  placeholder-in-extend: 1
+
+  # Mixins
+  mixins-before-declarations: 1
+
+  # Line Spacing
+  one-declaration-per-line: 1
+  empty-line-between-blocks:
+  - 0
+  - ignore-single-line-rulesets: true
+  single-line-per-selector: 1
+
+  #
