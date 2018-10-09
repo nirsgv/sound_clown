@@ -12,11 +12,11 @@ h1, h2, h3, h4, h5, h6 {
   margin: 0; }
 
 main {
-  height: 50rem;
-  position: relative;
-  margin: 0 auto;
   display: flex;
-  width: 80rem; }
+  position: relative;
+  width: 80rem;
+  height: 50rem;
+  margin: 0 auto; }
 
 section {
   outline: 1px dashed #ddd;
@@ -33,6 +33,9 @@ ul {
   padding: 0; }
 
 /*.search-section*/
+.search-section {
+  width: 30rem; }
+
 .search-section > div {
   padding: 0 2rem; }
 
@@ -50,7 +53,7 @@ ul {
   justify-content: center; }
 
 .search-control__button {
-  height: 3rem;
+  height: 4rem;
   cursor: pointer; }
 
 .data-toggler-and-display-wrp {
@@ -64,7 +67,7 @@ ul {
 .next-strip {
   position: absolute;
   bottom: 0;
-  height: 3rem;
+  height: 4rem;
   outline: 1px dashed #aaa;
   width: 100%;
   display: flex;
@@ -73,8 +76,11 @@ ul {
 
 /*end of .player-section*/
 /*.player-section*/
+.player-section {
+  width: calc(80rem - 30rem); }
+
 .play-chosen {
-  height: calc(100% - 3rem);
+  height: calc(100% - 4rem);
   outline: 1px dashed #ccc;
   width: inherit; }
 
@@ -96,7 +102,7 @@ ul {
   transform: translateX(-50%); }
 
 .soundcloud-strip {
-  height: 3rem;
+  height: 4rem;
   outline: 1px dashed #aaa; }
 
 /*end of .search-section*/
