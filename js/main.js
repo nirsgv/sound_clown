@@ -20,29 +20,17 @@ const model = {
 const view = {
     printCurrentResults: (tracks) => {
         let dataDisplay = document.querySelector("#data_display");
-        console.log(dataDisplay,tracks);
-        const builtSearchResultsElements = tracks.map((layer,index,array) => {
+        console.log(tracks);
+        tracks.forEach((layer,index,array) => {
             let track = document.createElement('li');
-            track.classList.add('track');
-            track.setAttribute('track-id',layer.id);
-            track.innerText = layer.title;
-            return (track)
+            let trackLink = document.createElement('a');
+            track.classList.add('data-display__result');
+            trackLink.classList.add('data-display__link');
+            trackLink.setAttribute('track-id',layer.id);
+            trackLink.innerText = layer.title;
+            track.appendChild(trackLink);
+            dataDisplay.appendChild(track);
         });
-        console.log(builtSearchResultsElements);
-
-        //document.getElementById('app').appendChild(resultsContainer);
-        // if (songs.length > 0) {
-        //     for (let i = 0; i < songs.length; i++) {
-        //         let result = document.createElement('results__item');
-        //         result.setAttribute('data-id', i + 1);
-        //         resultsContainer.appendChild(result);
-        //         result.innerText = songs[i].title;
-        //     }
-        // } else {
-        //     let message = document.createElement('message');
-        //     resultsContainer.appendChild(message);
-        //     message.innerText = "shit face";
-        // }
     }
 };
 
@@ -53,7 +41,7 @@ const controller = {
     user_id: 'EBquMMXE2x5ZxNs9UElOfb4HbvZK95rc',
     init: () => {
         SC.initialize({client_id: controller.user_id});
-        console.log(controller);
+        // console.log(controller);
 
         // set event handlers
         controller.searchSubmitter.onclick = controller.commitSearch;
@@ -64,15 +52,6 @@ const controller = {
             let searchValue = controller.searchGetInput.value;
             console.log(searchValue);
             model.getTracks(searchValue);
-            // if (model.searchState === false) {
-            //     if (searchValue) {
-            //         model.getSongs(searchValue);
-            //     }
-            // } else {
-            //     controller.searchGetInput.value = "";
-            //     model.searchState = false;
-            //     console.log(model.searchState, "changed state, cleared value");
-            // }
         }
 };
 
