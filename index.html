@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <title>soundcloudApi</title>
     <link rel="stylesheet" href="css/styles.css">
-    <script type="text/javascript" src="js/main.js"></script>
+
 </head>
 <body>
 <main>
     <section class="search-section">
         <div class="search-control">
-            <h2 class="search-control__string">Search</h2>
-            <button class="search-control__button">Go!</button>
+            <input class="search-control__string" placeholder="Search" id="search_get_input" />
+            <button class="search-control__button" id="search_submitter">Go!</button>
         </div>
         <div class="data-toggler-and-display-wrp">
             <ul class="current-results-last-searches-toggler">
@@ -19,7 +19,7 @@
                 <li class="current-results-last-searches-toggler__toggle">|</li>
                 <li class="current-results-last-searches-toggler__toggle">Last searches</li>
             </ul>
-            <ul class="data-display">
+            <ul class="data-display" id="data_display">
                 <li class="data-display__result"></li>
                 <li class="data-display__result"></li>
                 <li class="data-display__result"></li>
@@ -44,7 +44,9 @@
 
         </div>
     </section>
-</main>    
+</main>
 
+<script src="https://connect.soundcloud.com/sdk/sdk-3.3.0.js"></script>
+<script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>
