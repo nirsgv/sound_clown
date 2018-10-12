@@ -34,14 +34,14 @@
     </section>
     <section class="player-section">
         <div class="play-chosen">
-            <a href="#" class="play-chosen__link">
+            <div id="image-holder" class="play-chosen__link">
                 <div class="play-chosen__image-crop">
-                    <img src="assets/img/soundcloud-logo.jpg" alt="" class="play-chosen__image-display" />
+                    <img id="track-image" src="assets/img/soundcloud-logo.jpg" alt="" class="play-chosen__image-display" />
                 </div>
-            </a>
+            </div>
         </div>
         <div class="soundcloud-strip">
-            <iframe width="100%" height="166" scrolling="no" frameborder="no"
+            <iframe id="sc-player" width="100%" height="166" scrolling="no" frameborder="no"
                     src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/293&amp;{ ADD YOUR PARAMETERS HERE }">
             </iframe>
         </div>
@@ -49,6 +49,7 @@
 </main>
 
 <script src="https://connect.soundcloud.com/sdk/sdk-3.3.0.js"></script>
+<script src="https://w.soundcloud.com/player/api.js"></script>
 <script type="text/javascript" src="js/main.js"></script>
 </body>
 </html>

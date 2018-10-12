@@ -25,53 +25,72 @@ const model = {
 
 const view = {
     dataDisplay:  document.querySelector("#data_display"),
-
-    printCurrentResults: (tracks) => {
-        console.table(tracks);
-        view.dataDisplay.innerHTML = tracks
-            .map(t =>
-                `<li class="data-display__result" track-id="${t.id}">
-                    <a class="data-display__link" href="${t.id}">${t.title}</a>
-                </li>`).join('');
-    }
-};
-
-const controller = {
+    defaultImg: "assets/img/soundcloud-logo.jpg",
 
     searchGetInput: document.querySelector("#search_get_input"),
     searchSubmitter: document.querySelector('#search_submitter'),
+    imageHolder: document.querySelector('#image-holder'),
 
     // the elements with 'data-tab-id' attribute
     tab_lis: document.querySelectorAll('[data-tab-id]'),
 
-    user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
     init: () => {
-        SC.initialize({client_id: controller.user_id});
-        // console.log(controller);
+        // set event handlers
+        //controller.searchSubmitter.onclick = controller.commitSearch;
+        view.searchSubmitter.addEventListener('click', controller.commitSearch);
+        view.searchGetInput.addEventListener('change', controller.commitSearch);
+        view.imageHolder.addEventListener('click', controller.playTrack);
 
         // the elements with corresponding ids
-        const tabs = Array.from(controller.tab_lis)
+        const tabs = Array.from(view.tab_lis)
             .map(t=>document.getElementById(t.getAttribute('data-tab-id')));
-
-        controller.tab_lis.forEach((li, i)=> {
+        view.tab_lis.forEach((li, i)=> {
             li.addEventListener('click', ()=> {
                 tabs.forEach(t => t.classList.remove('displayed'));
                 tabs[i].classList.add('displayed');
             })
         });
+    },
 
-        // set event handlers
-        //controller.searchSubmitter.onclick = controller.commitSearch;
-        controller.searchSubmitter.addEventListener('click', controller.commitSearch);
-        controller.searchGetInput.addEventListener('change', controller.commitSearch);
+    printCurrentResults: (tracks) => {
+        console.table(tracks);
+        view.dataDisplay.innerHTML = tracks
+            .map(t =>
+                `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}')">
+                    <span class="data-display__link">${t.title}</span>
+                </li>`).join('');
+    }
+};
+
+const controller = {
+    scIFrame: document.querySelector('#sc-player'),
+    trackImage: document.querySelector('img#track-image'),
+
+
+    user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
+    init: () => {
+        SC.initialize({client_id: controller.user_id});
+        controller.scPlayer = SC.Widget(controller.scIFrame);
+        // console.log(controller);
     },
     commitSearch:
         () => {
-            let searchValue = controller.searchGetInput.value;
+            let searchValue = view.searchGetInput.value;
             console.log(searchValue);
             model.getTracks(searchValue).then(view.printCurrentResults);
-        }
+        },
+    loadTrack:
+        (id,imageSrc) => {
+            model.currentTrackId = id;
+            controller.scIFrame.src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${id}&auto_play=false`;
+            controller.trackImage.src = imageSrc;
+        },
+    playTrack:
+        () => {
+            controller.scPlayer.play();
+    }
 };
 
+document.addEventListener("DOMContentLoaded", view.init);
 document.addEventListener("DOMContentLoaded", controller.init);
 
