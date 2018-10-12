@@ -108,3 +108,10 @@ ul {
   outline: 1px dashed #aaa; }
 
 /*end of .search-section*/
+
+[toggled-results-display]{
+  display: none;
+}
+[toggled-results-display].displayed{
+  display: block;
+}
