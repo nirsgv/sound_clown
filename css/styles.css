@@ -105,7 +105,15 @@ ul {
 
 .soundcloud-strip {
   height: 4rem;
-  outline: 1px dashed #aaa; }
+  outline: 1px dashed #aaa;
+  position: fixed;
+  height: 16.6rem;
+  width: 100%;
+  left: 0;
+  padding: 0;
+  margin: 0;
+  bottom: 0;
+  }
 
 /*end of .search-section*/
 
@@ -115,3 +123,4 @@ ul {
 [toggled-results-display].displayed{
   display: block;
 }
+

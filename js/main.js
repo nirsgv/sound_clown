@@ -1,21 +1,20 @@
 "use strict";
-
 const model = {
     currentTrackId: '',
-    batchDisplay: 6,
+    batchDisplay: 200,
     renderedTracksBatch: 0,
     lastSearchedStrings: [],
     currentResults: [],
+
     getTracks: (par) => {
         return SC.get('/tracks', {
-            //limit: model.batchDisplay,
+            limit: model.batchDisplay,
             q: par
         }).then(function (tracks) {
             model.currentResults = tracks;
             console.log(model.currentResults);
             // view.printCurrentResults(model.currentResults);
-            model.lastSearchedStrings.push(par);
-            console.log(model.lastSearchedStrings);
+            // pass lastSearchedStrings to view to render 'search_display' li's (last searches)
             return Promise.resolve(tracks);
         });
     },
@@ -24,16 +23,15 @@ const model = {
 
 
 const view = {
-    dataDisplay:  document.querySelector("#data_display"),
     defaultImg: "assets/img/soundcloud-logo.jpg",
-
+    dataDisplay:  document.querySelector("#data_display"),
+    searchDisplay:  document.querySelector("#search_display"),
     searchGetInput: document.querySelector("#search_get_input"),
     searchSubmitter: document.querySelector('#search_submitter'),
     imageHolder: document.querySelector('#image-holder'),
 
     // the elements with 'data-tab-id' attribute
     tab_lis: document.querySelectorAll('[data-tab-id]'),
-
     init: () => {
         // set event handlers
         //controller.searchSubmitter.onclick = controller.commitSearch;
@@ -59,14 +57,21 @@ const view = {
                 `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}')">
                     <span class="data-display__link">${t.title}</span>
                 </li>`).join('');
+    },
+
+    printLastResults: (lastSearchesList) => {
+        console.log(lastSearchesList);
+        view.searchDisplay.innerHTML = lastSearchesList
+            .map((searchString, index, array) =>
+                `<li class="search-display__result">
+                    <span class="search-display__link">${searchString}</span>
+                </li>`).join('');
     }
 };
 
 const controller = {
     scIFrame: document.querySelector('#sc-player'),
     trackImage: document.querySelector('img#track-image'),
-
-
     user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
     init: () => {
         SC.initialize({client_id: controller.user_id});
@@ -75,9 +80,18 @@ const controller = {
     },
     commitSearch:
         () => {
-            let searchValue = view.searchGetInput.value;
+            const searchValue = view.searchGetInput.value;
             console.log(searchValue);
             model.getTracks(searchValue).then(view.printCurrentResults);
+            controller.addSearchToList(searchValue);
+        },
+    addSearchToList:
+        (searchValue) => {
+        // check for duplicates before adding to list
+            if(model.lastSearchedStrings.indexOf(searchValue) ===  -1){
+                model.lastSearchedStrings.push(searchValue);
+            }
+            view.printLastResults(model.lastSearchedStrings);
         },
     loadTrack:
         (id,imageSrc) => {
