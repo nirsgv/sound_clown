@@ -5,7 +5,7 @@ const model = {
     lastSearchedStrings: [],
     currentResults: [],
     batchSlice: 6,
-    batchSliceCurrentPagination: 0,
+    currentPagination: 0,
     paginationActivated: false,
     getTracks: (par) => {
         return SC.get('/tracks', {
@@ -13,7 +13,7 @@ const model = {
             q: par
         }).then(function (tracks) {
             model.currentResults = tracks;
-            console.log(model.currentResults);
+            //console.log(model.currentResults);
             return Promise.resolve(tracks);
         });
     },
@@ -38,6 +38,8 @@ const view = {
         view.searchSubmitter.addEventListener('click', controller.commitSearch);
         view.searchGetInput.addEventListener('change', controller.commitSearch);
         view.imageHolder.addEventListener('click', controller.playTrack);
+        view.prevPaginate.addEventListener('click', view.paginate);
+        view.nextPaginate.addEventListener('click', view.paginate);
 
         // the elements with corresponding ids
         const tabs = Array.from(view.tab_lis)
@@ -49,12 +51,13 @@ const view = {
             })
         });
     },
-    paginateResults: (items, first, last) => {
-        return items.slice(first, last)
+    paginateResults: (items) => {
+        const paginatedPos = model.currentPagination * model.batchSlice;
+        return items.slice(paginatedPos, paginatedPos + model.batchSlice)
     },
     printCurrentResults: (tracks) => {
-        console.table(tracks);
-        view.dataDisplay.innerHTML = view.paginateResults(tracks, 0, model.batchSlice)
+        //console.table(tracks);
+        view.dataDisplay.innerHTML = view.paginateResults(tracks)
             .map(t =>
                 `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}')">
                     <span class="data-display__link">${t.title}</span>
@@ -73,7 +76,16 @@ const view = {
     },
     setPaginationUI: () => {
         console.log('setPaginationUI started');
-        model.currentResults.length < model.batchSlice ? view.prevPaginate.setAttribute('disabled', 'true') : '';
+        if (model.currentResults.length < model.batchSlice){
+            view.prevPaginate.setAttribute('disabled', '');
+            view.nextPaginate.setAttribute('disabled', '');
+        }
+    },
+    paginate: (e) => {
+        console.dir(e.target.id);
+        e.target.id==='next' ? model.currentPagination++ : model.currentPagination > 0  ? model.currentPagination-- : '';
+        view.printCurrentResults(model.currentResults);
+        console.log(model.currentPagination);
     }
 };
 
