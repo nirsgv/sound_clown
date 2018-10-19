@@ -1,5 +1,4 @@
 "use strict";
-
 //todo: divide loadTrack into load image src and load url
 //todo: put all global variables into an IIFE
 
@@ -87,7 +86,7 @@ const view = {
         //console.table(tracks);
         view.dataDisplay.innerHTML = view.paginateResults(tracks)
             .map(t =>
-                `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}')">
+                `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}');view.animateItemIntoImageHolder(event);">
                     <span class="data-display__link">${t.title}</span>
                 </li>`).join('');
         view.setPaginationUI();
@@ -98,9 +97,31 @@ const view = {
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
                 // todo: print the parameter as the argument for function
-                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('${searchString}')">
+                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('${searchString}');">
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
+    },
+    animateItemIntoImageHolder: (event) => {
+        const destination = view.getCenter(view.imageHolder);
+        const startPosition = view.getOffset(event.target);
+        console.log(destination);
+        console.log(startPosition);
+        let clonedElemNode = event.target.cloneNode(true);
+        clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
+        event.target.parentNode.append(clonedElemNode);
+
+    },
+    getCenter: (elem) => {
+        const elemBoundRect = elem.getBoundingClientRect();
+        const horCenter = elemBoundRect.left + (elemBoundRect.width/2);
+        const verCenter = elemBoundRect.top + (elemBoundRect.height/2);
+        return [horCenter,verCenter];
+    },
+    getOffset: (elem) => {
+        const elemBoundRect = elem.getBoundingClientRect();
+        const horOffset = elemBoundRect.left;
+        const verOffset = elemBoundRect.top;
+        return [horOffset,verOffset];
     },
     setPaginationUI: () => {
         console.log('setPaginationUI started');
