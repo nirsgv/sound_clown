@@ -6,12 +6,18 @@
 const model = {
     currentTrackId: '',
     initialBatch: 200,
-    lastSearchedStrings: localStorage.getItem('lastSearched').split(','),
+    lastSearchedStrings: [],
     currentResults: [],
     batchSlice: 6,
     currentPagination: 0,
     paginationActivated: false,
     initiallySetSerchesFromLocalStorage: false,
+    init: () => {
+        model.lastSearchedStrings = localStorage.getItem('lastSearched') ?
+                               localStorage.getItem('lastSearched').split(',') :
+                               [];
+        // console.log(controller);
+    },
     get last() {
         if (localStorage.getItem('lastSearched')) {
             model.initiallySetSerchesFromLocalStorage = true;
@@ -53,6 +59,7 @@ const view = {
         view.prevPaginate.addEventListener('click', view.paginate);
         view.nextPaginate.addEventListener('click', view.paginate);
 
+        view.printLastSearches(model.lastSearchedStrings);
         // the elements with corresponding ids
         const tabs = Array.from(view.tab_lis)
             .map(t=>document.getElementById(t.getAttribute('data-tab-id')));
@@ -168,6 +175,7 @@ const controller = {
 };
 
 //document.addEventListener("DOMContentLoaded", function(){model.lastSearchedStrings=['asd'];view.printLastSearches(model.lastSearchedStrings)});
+document.addEventListener("DOMContentLoaded", model.init);
 document.addEventListener("DOMContentLoaded", view.init);
 document.addEventListener("DOMContentLoaded", controller.init);
 
