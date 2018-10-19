@@ -117,9 +117,13 @@ const controller = {
     init: () => {
         SC.initialize({client_id: controller.user_id});
         controller.scPlayer = SC.Widget(controller.scIFrame);
+        controller.scPlayer.bind(SC.Widget.Events.READY, controller.onPlayReady)
         // console.log(controller);
     },
+    onPlayReady:
+        () => {
 
+        },
     commitSearch:
         () => {
             const searchValue = view.searchGetInput.value;
@@ -159,15 +163,7 @@ const controller = {
         },
     playTrack:
         () => {
-            // let isSet= false;
-            // let promiseToLoadNewTrackInPlayer = new Promise(function(resolve,reject){
-            //     resolve(controller.scIFrame.src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${model.currentTrackId}&auto_play=false`);
-            //
-            // });
-            // promiseToLoadNewTrackInPlayer().then(controller.scPlayer.play());
-            // todo: change this setTimeout with a nice promise
-            controller.scIFrame.src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${model.currentTrackId}&auto_play=false`;
-            window.setTimeout(function(){controller.scPlayer.play();},1000);
+            controller.scPlayer.load(`https://api.soundcloud.com/tracks/${model.currentTrackId}`,{auto_play:true});
     }
 };
 
