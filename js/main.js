@@ -6,20 +6,19 @@
 const model = {
     currentTrackId: '',
     initialBatch: 200,
-    lastSearchedStrings: [],
+    lastSearchedStrings: localStorage.getItem('lastSearched').split(','),
     currentResults: [],
     batchSlice: 6,
     currentPagination: 0,
     paginationActivated: false,
     initiallySetSerchesFromLocalStorage: false,
-    log: ['a', 'b', 'c'],
-    // get lastSearchedStrings() {
-    //     if (localStorage.getItem('lastSearched')) {
-    //         model.initiallySetSerchesFromLocalStorage = true;
-    //         return localStorage.getItem('lastSearched').split(',');
-    //     }
-    //     return ['asd'];
-    // },
+    get last() {
+        if (localStorage.getItem('lastSearched')) {
+            model.initiallySetSerchesFromLocalStorage = true;
+            return localStorage.getItem('lastSearched').split(',').slice((this.length - 5), this.length);
+        }
+        return ['asd'];
+    },
     getTracks: (par) => {
         return SC.get('/tracks', {
             limit: model.initialBatch,
@@ -92,7 +91,7 @@ const view = {
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
                 // todo: print the parameter as the argument for function
-                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('aphex twin')">
+                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('${searchString}')">
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
