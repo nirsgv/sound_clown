@@ -15,7 +15,7 @@ const model = {
     get last() {
         if (localStorage.getItem('lastSearched')) {
             model.initiallySetSerchesFromLocalStorage = true;
-            return localStorage.getItem('lastSearched').split(',').slice((this.length - 5), this.length);
+            return localStorage.getItem('lastSearched').split(',').slice(-5);
         }
         return ['asd'];
     },
