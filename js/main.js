@@ -11,6 +11,15 @@ const model = {
     batchSlice: 6,
     currentPagination: 0,
     paginationActivated: false,
+    initiallySetSerchesFromLocalStorage: false,
+    log: ['a', 'b', 'c'],
+    // get lastSearchedStrings() {
+    //     if (localStorage.getItem('lastSearched')) {
+    //         model.initiallySetSerchesFromLocalStorage = true;
+    //         return localStorage.getItem('lastSearched').split(',');
+    //     }
+    //     return ['asd'];
+    // },
     getTracks: (par) => {
         return SC.get('/tracks', {
             limit: model.initialBatch,
@@ -78,11 +87,12 @@ const view = {
         view.setPaginationUI();
     },
 
-    printLastResults: (lastSearchesList) => {
+    printLastSearches: (lastSearchesList) => {
         console.log(lastSearchesList);
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
-                `<li class="search-display__result" onclick="controller.loadTrack(searchString)">
+                // todo: print the parameter as the argument for function
+                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('aphex twin')">
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
@@ -123,6 +133,11 @@ const controller = {
                 view.inputMessage.setAttribute('visible','true');
             }
         },
+    commitSearchByLastSearchResult:
+        (searchString) => {
+            //console.log(searchValue);
+                model.getTracks(searchString).then(view.printCurrentResults);
+        },
     /**
      * Checks if searched value is present in an array which holds searched titles,
      * if not present in array already, it adds it.
@@ -134,20 +149,30 @@ const controller = {
             if(model.lastSearchedStrings.indexOf(searchValue) ===  -1){
                 model.lastSearchedStrings.push(searchValue);
             }
-            view.printLastResults(model.lastSearchedStrings);
+            console.log(Array.isArray(model.lastSearchedStrings));
+            window.localStorage.setItem('lastSearched', model.lastSearchedStrings);
+            view.printLastSearches(model.lastSearchedStrings);
         },
     loadTrack:
         (id,imageSrc) => {
             model.currentTrackId = id;
-            controller.scIFrame.src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${id}&auto_play=false`;
             controller.trackImage.src = imageSrc;
         },
     playTrack:
         () => {
-            controller.scPlayer.play();
+            // let isSet= false;
+            // let promiseToLoadNewTrackInPlayer = new Promise(function(resolve,reject){
+            //     resolve(controller.scIFrame.src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${model.currentTrackId}&auto_play=false`);
+            //
+            // });
+            // promiseToLoadNewTrackInPlayer().then(controller.scPlayer.play());
+            // todo: change this setTimeout with a nice promise
+            controller.scIFrame.src = `https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/${model.currentTrackId}&auto_play=false`;
+            window.setTimeout(function(){controller.scPlayer.play();},1000);
     }
 };
 
+//document.addEventListener("DOMContentLoaded", function(){model.lastSearchedStrings=['asd'];view.printLastSearches(model.lastSearchedStrings)});
 document.addEventListener("DOMContentLoaded", view.init);
 document.addEventListener("DOMContentLoaded", controller.init);
 
