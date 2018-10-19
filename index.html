@@ -14,7 +14,10 @@
 <main>
     <section class="search-section">
         <div class="search-control">
-            <input class="search-control__string" placeholder="Search" id="search_get_input" type="search"/>
+            <div class="search-input-wrap">
+                <input class="search-control__string" placeholder="Search" id="search_get_input" type="search"/>
+                <span id="input_message" visible="false">Please write something mate.</span>
+            </div>
             <button class="search-control__button" id="search_submitter">Go!</button>
         </div>
         <div class="data-toggler-and-display-wrp">

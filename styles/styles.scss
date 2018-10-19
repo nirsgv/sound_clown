@@ -134,3 +134,15 @@ ul {
   margin: 0;
   bottom: 0;
 }
+#data_display,#search_display{
+  display: none;
+  &.displayed{
+    display: block;
+  }
+}
+#input_message{
+  display: block;
+  &[visible="false"]{
+    display: none;
+  }
+}

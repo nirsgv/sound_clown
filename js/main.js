@@ -1,4 +1,8 @@
 "use strict";
+
+//todo: divide loadTrack into load image src and load url
+//todo: put all global variables into an IIFE
+
 const model = {
     currentTrackId: '',
     initialBatch: 200,
@@ -30,7 +34,7 @@ const view = {
     imageHolder: document.querySelector('#image-holder'),
     prevPaginate: document.querySelector('#prev'),
     nextPaginate: document.querySelector('#next'),
-
+    inputMessage: document.querySelector('#input_message'),
     // the elements with 'data-tab-id' attribute
     tab_lis: document.querySelectorAll('[data-tab-id]'),
     init: () => {
@@ -51,10 +55,19 @@ const view = {
             })
         });
     },
+    /**
+     * Slices a delivered collection by current pagination value and batch amount.
+     * @param {array} items - A collection of tracks data items.
+     */
     paginateResults: (items) => {
         const paginatedPos = model.currentPagination * model.batchSlice;
         return items.slice(paginatedPos, paginatedPos + model.batchSlice)
     },
+    /**
+     * Goes through the sliced amount by pagination of searched tracks,
+     * builds list elements for the DOM and appends them.
+     * @param {array} tracks - A collection of tracks data items.
+     */
     printCurrentResults: (tracks) => {
         //console.table(tracks);
         view.dataDisplay.innerHTML = view.paginateResults(tracks)
@@ -62,7 +75,6 @@ const view = {
                 `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}')">
                     <span class="data-display__link">${t.title}</span>
                 </li>`).join('');
-
         view.setPaginationUI();
     },
 
@@ -70,7 +82,7 @@ const view = {
         console.log(lastSearchesList);
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
-                `<li class="search-display__result">
+                `<li class="search-display__result" onclick="controller.loadTrack(searchString)">
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
@@ -98,13 +110,24 @@ const controller = {
         controller.scPlayer = SC.Widget(controller.scIFrame);
         // console.log(controller);
     },
+
     commitSearch:
         () => {
             const searchValue = view.searchGetInput.value;
-            console.log(searchValue);
-            model.getTracks(searchValue).then(view.printCurrentResults);
-            controller.addSearchToList(searchValue);
+            //console.log(searchValue);
+            if (searchValue !== '') {
+                model.getTracks(searchValue).then(view.printCurrentResults);
+                controller.addSearchToList(searchValue);
+                view.inputMessage.setAttribute('visible','false');
+            } else {
+                view.inputMessage.setAttribute('visible','true');
+            }
         },
+    /**
+     * Checks if searched value is present in an array which holds searched titles,
+     * if not present in array already, it adds it.
+     * @param {string} searchValue - Name of search title.
+     */
     addSearchToList:
         (searchValue) => {
         // check for duplicates before adding to list
