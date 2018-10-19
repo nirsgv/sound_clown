@@ -127,3 +127,7 @@ ul {
   display: block; }
   #input_message[visible="false"] {
     display: none; }
+
+.animated-cloned-element {
+  z-index: 3;
+  transition: all 0.5s ease-out; }

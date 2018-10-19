@@ -86,7 +86,7 @@ const view = {
         //console.table(tracks);
         view.dataDisplay.innerHTML = view.paginateResults(tracks)
             .map(t =>
-                `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}');view.animateItemIntoImageHolder(event);">
+                `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}');view.animateItemIntoImageHolder(event,view.imageHolder);">
                     <span class="data-display__link">${t.title}</span>
                 </li>`).join('');
         view.setPaginationUI();
@@ -101,15 +101,23 @@ const view = {
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
-    animateItemIntoImageHolder: (event) => {
-        const destination = view.getCenter(view.imageHolder);
+    animateItemIntoImageHolder: (event,destinationElem) => {
         const startPosition = view.getOffset(event.target);
-        console.log(destination);
-        console.log(startPosition);
+        const destination = view.getCenter(destinationElem);
+        console.log(startPosition,destination);
+
         let clonedElemNode = event.target.cloneNode(true);
+        clonedElemNode.classList.add('animated-cloned-element');
+        const uniqueId=Math.random().toFixed(6);
+        clonedElemNode.setAttribute('id',uniqueId);
         clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
         event.target.parentNode.append(clonedElemNode);
 
+        const catchClonedElement = document.getElementById(uniqueId);
+        window.setTimeout(function(){catchClonedElement.setAttribute('style', `position:fixed;left:${destination[0]}px;top:${destination[1]}px;`);},0);
+
+        console.log(uniqueId);
+        console.log(catchClonedElement);
     },
     getCenter: (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
