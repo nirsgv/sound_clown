@@ -122,9 +122,8 @@ const view = {
 
     },
     transitionEnded: (event) => {
-        console.log(event.target);
-        console.log(event.target.trackId);
         controller.loadTrack(event.target.trackId);
+        event.target.remove();
     },
     getCenter: (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
@@ -205,13 +204,20 @@ const controller = {
         },
     loadTrack:
         (id) => {
-            model.currentTrackId = id;
             const track = controller.getTrackById(model.currentResults,id);
             controller.trackImage.src = track.artwork_url || view.defaultImg;
+            controller.trackImage.classList.add('animate-img-entrance');
+            controller.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded);
+            model.currentTrackId = id;
+            controller.trackImage.trackId = id;
+        },
+    animateImageEntranceEnded:
+        (event) => {
+            event.target.classList.remove('animate-img-entrance');
         },
     playTrack:
-        () => {
-            controller.scPlayer.load(`https://api.soundcloud.com/tracks/${model.currentTrackId}`,{auto_play:true});
+        (event) => {
+            controller.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
     }
 };
 
