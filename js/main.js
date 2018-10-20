@@ -1,6 +1,7 @@
 "use strict";
 //todo: divide loadTrack into load image src and load url
 //todo: put all global variables into an IIFE
+//todo: put all global variables into an IIFE
 
 const model = {
     currentTrackId: '',
@@ -12,10 +13,9 @@ const model = {
     paginationActivated: false,
     initiallySetSerchesFromLocalStorage: false,
     init: () => {
-        model.lastSearchedStrings = localStorage.getItem('lastSearched') ?
-                               localStorage.getItem('lastSearched').split(',') :
-                               [];
-        // console.log(controller);
+        model.lastSearchedStrings = localStorage.getItem('lastSearched')
+                                  ? localStorage.getItem('lastSearched').split(',')
+                                  : [];
     },
     get last() {
         if (localStorage.getItem('lastSearched')) {
@@ -86,7 +86,7 @@ const view = {
         //console.table(tracks);
         view.dataDisplay.innerHTML = view.paginateResults(tracks)
             .map(t =>
-                `<li class="data-display__result" track-id="${t.id}" onclick="controller.loadTrack(${t.id},'${t.artwork_url || view.defaultImg}');view.animateItemIntoImageHolder(event,view.imageHolder);">
+                `<li class="data-display__result" track-id="${t.id}" onclick="view.animateClonedIntoDestination(event,view.imageHolder,${t.id});">
                     <span class="data-display__link">${t.title}</span>
                 </li>`).join('');
         view.setPaginationUI();
@@ -101,7 +101,7 @@ const view = {
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
-    animateItemIntoImageHolder: (event,destinationElem) => {
+    animateClonedIntoDestination: (event,destinationElem,id) => {
         const startPosition = view.getOffset(event.target);
         const destination = view.getCenter(destinationElem);
         console.log(startPosition,destination);
@@ -111,13 +111,20 @@ const view = {
         const uniqueId=Math.random().toFixed(6);
         clonedElemNode.setAttribute('id',uniqueId);
         clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
+        //clonedElemNode.setAttribute('trackId', id);
+        clonedElemNode.trackId = id;
+        clonedElemNode.addEventListener('transitionend',view.transitionEnded);
         event.target.parentNode.append(clonedElemNode);
-
         const catchClonedElement = document.getElementById(uniqueId);
-        window.setTimeout(function(){catchClonedElement.setAttribute('style', `position:fixed;left:${destination[0]}px;top:${destination[1]}px;`);},0);
+        window.setTimeout(function(){
+            catchClonedElement.setAttribute('style', `position:fixed;left:${destination[0]}px;top:${destination[1]}px;`);
+            },0);
 
-        console.log(uniqueId);
-        console.log(catchClonedElement);
+    },
+    transitionEnded: (event) => {
+        console.log(event.target);
+        console.log(event.target.trackId);
+        controller.loadTrack(event.target.trackId);
     },
     getCenter: (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
@@ -153,12 +160,16 @@ const controller = {
     init: () => {
         SC.initialize({client_id: controller.user_id});
         controller.scPlayer = SC.Widget(controller.scIFrame);
-        controller.scPlayer.bind(SC.Widget.Events.READY, controller.onPlayReady)
+        //controller.scPlayer.bind(SC.Widget.Events.READY, controller.onPlayReady)
         // console.log(controller);
     },
     onPlayReady:
         () => {
-
+            console.log('player ready');
+        },
+    getTrackById:
+        (tracks,id) => {
+            return tracks.filter(track => track.id === id)[0];
         },
     commitSearch:
         () => {
@@ -193,9 +204,10 @@ const controller = {
             view.printLastSearches(model.lastSearchedStrings);
         },
     loadTrack:
-        (id,imageSrc) => {
+        (id) => {
             model.currentTrackId = id;
-            controller.trackImage.src = imageSrc;
+            const track = controller.getTrackById(model.currentResults,id);
+            controller.trackImage.src = track.artwork_url || view.defaultImg;
         },
     playTrack:
         () => {
