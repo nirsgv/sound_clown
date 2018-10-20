@@ -1,7 +1,8 @@
 "use strict";
 //todo: divide loadTrack into load image src and load url
 //todo: put all global variables into an IIFE
-//todo: put all global variables into an IIFE
+//todo: pagination end and pagination disabled handling
+//todo: play button rendering handling
 
 const model = {
     currentTrackId: '',
@@ -186,6 +187,8 @@ const controller = {
         (searchString) => {
             //console.log(searchValue);
                 model.getTracks(searchString).then(view.printCurrentResults);
+                view.dataDisplay.classList.add('displayed');
+                view.searchDisplay.classList.remove('displayed');
         },
     /**
      * Checks if searched value is present in an array which holds searched titles,
@@ -194,7 +197,7 @@ const controller = {
      */
     addSearchToList:
         (searchValue) => {
-        // check for duplicates failed, add to list
+        // check for duplicates failed, add to list, cut list for five items length in total
             if(model.lastSearchedStrings.indexOf(searchValue) ===  -1){
                 model.lastSearchedStrings.push(searchValue);
                 let lastFiveSearches = model.lastSearchedStrings.slice(-5);
