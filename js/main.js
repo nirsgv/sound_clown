@@ -43,26 +43,42 @@ const view = {
     prevPaginate: document.querySelector('#prev'),
     nextPaginate: document.querySelector('#next'),
     inputMessage: document.querySelector('#input_message'),
+    dataDisplayHeader: document.querySelector('#data_display_header'),
+    searchDisplayHeader: document.querySelector('#search_display_header'),
     // the elements with 'data-tab-id' attribute
     tab_lis: document.querySelectorAll('[data-tab-id]'),
     init: () => {
         // set event handlers
-        view.searchSubmitter.addEventListener('click', controller.commitSearch);
-        view.searchGetInput.addEventListener('change', controller.commitSearch);
-        view.imageHolder.addEventListener('click', controller.playTrack);
-        view.prevPaginate.addEventListener('click', view.paginate);
-        view.nextPaginate.addEventListener('click', view.paginate);
+        view.searchSubmitter.addEventListener('click', controller.commitSearch,false);
+        view.searchGetInput.addEventListener('change', controller.commitSearch),false;
+        view.imageHolder.addEventListener('click', controller.playTrack,false);
+        view.prevPaginate.addEventListener('click', view.paginate,false);
+        view.nextPaginate.addEventListener('click', view.paginate,false);
+
+        view.dataDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
+        view.searchDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
 
         view.printLastSearches(model.lastSearchedStrings);
         // the elements with corresponding ids
         const tabs = Array.from(view.tab_lis)
             .map(t=>document.getElementById(t.getAttribute('data-tab-id')));
                 view.tab_lis.forEach((li, i)=> {
-                li.addEventListener('click', ()=> {
+                li.addEventListener('click', (event)=> {
                     tabs.forEach(t => t.classList.remove('displayed'));
                     tabs[i].classList.add('displayed');
-            })
+            },false)
         });
+    },
+
+    toggleHeaderActive: (event) => {
+        if (event.target.parentNode.id==="data_display_header"){
+            view.searchDisplayHeader.classList.remove('active');
+            event.target.parentNode.classList.add('active');
+        }
+        if (event.target.parentNode.id==="search_display_header"){
+            view.dataDisplayHeader.classList.remove('active');
+            event.target.parentNode.classList.add('active');
+        }
     },
     /**
      * Slices a delivered collection by current pagination value and batch amount.
@@ -72,6 +88,11 @@ const view = {
         const paginatedPos = model.currentPagination * model.batchSlice;
         return items.slice(paginatedPos, paginatedPos + model.batchSlice)
     },
+    // toggleHeaderActive: (event) => {
+    //     if (!event.target.parentNode.classList.contains('active')){
+    //         event.target.parentNode.classList.add('active');
+    //     }
+    // },
     /**
      * Goes through the sliced amount by pagination of searched tracks,
      * builds list elements for the DOM and appends them.
@@ -108,7 +129,7 @@ const view = {
         clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
         //clonedElemNode.setAttribute('trackId', id);
         clonedElemNode.trackId = id;
-        clonedElemNode.addEventListener('transitionend',view.transitionEnded);
+        clonedElemNode.addEventListener('transitionend',view.transitionEnded,false);
         event.target.parentNode.append(clonedElemNode);
         const catchClonedElement = document.getElementById(uniqueId);
         window.setTimeout(function(){
@@ -156,10 +177,13 @@ const view = {
 const controller = {
     scIFrame: document.querySelector('#sc-player'),
     trackImage: document.querySelector('img#track-image'),
+    playPauseToggleButton: document.querySelector('#play_pause_toggle_button'),
     user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
     init: () => {
         SC.initialize({client_id: controller.user_id});
         controller.scPlayer = SC.Widget(controller.scIFrame);
+        controller.playPauseToggleButton.addEventListener('click', controller.playTrack,false);
+
         //controller.scPlayer.bind(SC.Widget.Events.READY, controller.onPlayReady)
         // console.log(controller);
     },
@@ -217,23 +241,34 @@ const controller = {
         (id) => {
             const track = controller.getTrackById(model.currentResults,id);
             controller.trackImage.src = track.artwork_url || view.defaultImg;
-
             controller.trackImage.classList.add(view.isElemWideOrTall(controller.trackImage));
-
             controller.trackImage.classList.add('animate-img-entrance');
-
-            controller.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded);
+            controller.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded,false);
             model.currentTrackId = id;
             controller.trackImage.trackId = id;
         },
     animateImageEntranceEnded:
         (event) => {
             event.target.classList.remove('animate-img-entrance');
+            controller.playPauseToggleButton.setAttribute('active',true);
+            controller.playPauseToggleButton.trackId = model.currentTrackId;
+            controller.playPauseToggleButton.setAttribute('data-current-action','Play');
         },
     playTrack:
         (event) => {
+        const PlayPauseButtonCurrentAction = event.target.getAttribute("data-current-action");
+        if (PlayPauseButtonCurrentAction === 'Pause'){
+            controller.scPlayer.pause();
+            controller.playPauseToggleButton.setAttribute('data-current-action','Play');
+        }
+        else if (PlayPauseButtonCurrentAction === 'Play'){
+            controller.scPlayer.play();
+            controller.playPauseToggleButton.setAttribute('data-current-action','Pause');
+        } else {
             controller.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
-    }
+            controller.playPauseToggleButton.setAttribute('data-current-action','Pause');
+            }
+        }
 };
 
 document.addEventListener("DOMContentLoaded", model.init);

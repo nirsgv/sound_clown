@@ -1,7 +1,12 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+
 $main-width: 80rem;
 $search-section-width: 30rem;
 $player-section-width: calc(#{$main-width} - #{$search-section-width});
 $soundcloud-strip-height: 4rem;
+$search-section-bkg-color: #e0e0e0;
+$search-control-bkg-color: #f4f4f4;
+$paginate-strip-bkg-color: #ccc;
 
 *, *:before, *:after{
   box-sizing: border-box;
@@ -12,6 +17,7 @@ html {
 body {
   background-color: #eee;
   margin: 0;
+  font-family: 'Open Sans', sans-serif;
 }
 h1,h2,h3,h4,h5,h6 {
   margin: 0;
@@ -26,7 +32,7 @@ main{
 }
 
 section {
-  outline: 1px dashed #ddd; /*tmp*/
+  //outline: 1px dashed #ddd; /*tmp*/
   height: inherit;
   width: 40rem;
   display: inline-block;
@@ -39,29 +45,43 @@ ul {
   margin: 0;
   padding: 0;
   overflow: hidden;
-  outline: 1px dashed red;
+  // outline: 1px dashed red;
+}
+
+.current-results-last-searches-toggler__toggle{
+  padding: 0.2rem 0.6rem;
+  transition: background-color 0.1s ease-in-out;
+  &.active{
+    background-color: orange;
+    border-radius:  0.8rem;
+  }
 }
 
 /*.search-section*/
 .search-section {
   width: $search-section-width;
+  background-color: $search-section-bkg-color;
 }
 // intended for all direct children of search-section
 .search-section > div{
-  padding: 0 2rem;
+  padding: 1rem 2rem;
 }
 .search-control {
   height: 7rem;
-  outline: 1px dashed #aaa;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
   align-items: center;
+  background-color: $search-control-bkg-color;
 }
 .search-control__string {
   display: flex;
   flex-direction: column;
   justify-content: center;
+  border-radius: 2rem;
+  border: 1px solid #dfdfdf;
+  padding: 0.4rem 1rem;
+  color: #444;
 }
 .search-control__button {
   height: $soundcloud-strip-height;
@@ -80,11 +100,11 @@ ul {
   position: absolute;
   bottom: 0;
   height: $soundcloud-strip-height;
-  outline: 1px dashed #aaa;
   width: 100%;
   display: flex;
   justify-content: flex-end;
   align-items: center;
+  background-color: $paginate-strip-bkg-color;
 }
 /*end of .player-section*/
 
@@ -97,12 +117,24 @@ ul {
 .play-chosen{
   //height: calc(100% - #{$soundcloud-strip-height});
   height: 100%;
-  outline: 1px dashed #ccc;
+  //outline: 1px dashed #ccc;
   width: inherit;
 }
 .play-chosen__link{
   width: inherit;
   height: 100%;
+}
+#image-holder{
+  &:after{
+    content: '';
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0) 65%);
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+  }
 }
 .play-chosen__image-crop{
   width: inherit;
@@ -146,8 +178,21 @@ ul {
 }
 #data_display,#search_display{
   display: none;
+  padding: 1.2rem 0;
+  overflow-y: auto;
+  max-height: 36rem;
   &.displayed{
     display: block;
+  }
+  li {
+    font-size: 1.4rem;
+    padding: 1.2rem 0;
+    display: block;
+    border-bottom: 1px solid #d8d8d8;
+    cursor: pointer;
+    &:last-child{
+      border-bottom: none;
+    }
   }
 }
 #input_message{
@@ -159,9 +204,17 @@ ul {
 
 .animated-cloned-element{
   z-index: 3;
+  opacity: 0.75;
+  color: #888;
   transition: all 0.5s ease-out;
+  animation-name: fade-out;
+  animation-timing-function: ease-in;
+  animation-duration: .25s;
 }
-
+@keyframes fade-out {
+  from {opacity: 0.75;}
+  to {opacity: 0;}
+}
 .animate-img-entrance{
   filter: blur(0px);
   animation-name: blur-out;
@@ -171,4 +224,27 @@ ul {
 @keyframes blur-out {
   from {filter: blur(20px);}
   to {filter: blur(0px);}
+}
+
+#play_pause_toggle_button {
+  font-size: 4em;
+  z-index: 4;
+  position: absolute;
+  width: 100%;
+  height: $soundcloud-strip-height;
+  //pointer-events: none;
+  text-align: right;
+  bottom: 0;
+  left: 0;
+  background-color: rgba(0,0,0,0.1);
+  transition: opacity 0.25s ease-in-out;
+  &[active="false"]{
+    opacity: 0;
+  }
+  &[active="true"]{
+    opacity: 1;
+  }
+  &:after {
+    content: attr(data-current-action);
+  }
 }

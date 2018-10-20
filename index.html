@@ -22,9 +22,9 @@
         </div>
         <div class="data-toggler-and-display-wrp">
             <ul class="current-results-last-searches-toggler">
-                <li data-tab-id="data_display" class="current-results-last-searches-toggler__toggle"><a>Results</a></li>
+                <li id="data_display_header" data-tab-id="data_display" class="current-results-last-searches-toggler__toggle active"><a>Results</a></li>
                 <li class="current-results-last-searches-toggler__toggle">|</li>
-                <li data-tab-id="search_display" class="current-results-last-searches-toggler__toggle"><a>Last searches</a></li>
+                <li id="search_display_header" data-tab-id="search_display" class="current-results-last-searches-toggler__toggle"><a>Last searches</a></li>
             </ul>
             <ul toggled-results-display class="displayed" id="data_display">
             </ul>
@@ -41,6 +41,9 @@
                 <div class="play-chosen__image-crop">
                     <img id="track-image" src="assets/img/soundcloud-logo.jpg" alt="" class="play-chosen__image-display" />
                 </div>
+            </div>
+            <div class="play-pause-toggle-button" id="play_pause_toggle_button" active="false">
+                <!--Play-->
             </div>
         </div>
     </section>
