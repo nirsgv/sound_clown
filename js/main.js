@@ -3,6 +3,19 @@
 //todo: put all global variables into an IIFE
 //todo: pagination end and pagination disabled handling
 //todo: play button rendering handling
+// function Model() {
+//
+//
+//     return {
+//
+//     }   ;
+// }
+// //const model = new Model();
+//
+// const model = (function (){
+//     // private
+//     return {};
+// })();
 
 const model = {
     currentTrackId: '',
@@ -12,7 +25,6 @@ const model = {
     batchSlice: 6,
     currentPagination: 0,
     paginationActivated: false,
-    initiallySetSerchesFromLocalStorage: false,
     LAST_SEARCHED: 'sound_clown.lastSearched',
     init: () => {
         model.lastSearchedStrings = localStorage.getItem(model.LAST_SEARCHED)
@@ -64,6 +76,7 @@ const view = {
             .map(t=>document.getElementById(t.getAttribute('data-tab-id')));
                 view.tab_lis.forEach((li, i)=> {
                 li.addEventListener('click', (event)=> {
+
                     tabs.forEach(t => t.classList.remove('displayed'));
                     tabs[i].classList.add('displayed');
             },false)
@@ -73,10 +86,10 @@ const view = {
     toggleHeaderActive: (event) => {
         if (event.target.id==="search_display_header"){
             view.dataDisplayHeader.classList.remove('active');
-            event.target.classList.add('active');
+            view.searchDisplayHeader.classList.add('active');
         } else {
             view.searchDisplayHeader.classList.remove('active');
-            event.target.classList.add('active');
+            view.dataDisplayHeader.classList.add('active');
         }
     },
     /**
@@ -112,7 +125,7 @@ const view = {
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
                 // todo: print the parameter as the argument for function
-                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('${searchString}');">
+                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('${searchString}');view.toggleHeaderActive(event)">
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
@@ -167,7 +180,8 @@ const view = {
     },
     paginate: (e) => {
         console.dir(e.target.id);
-        e.target.id==='next' ? model.currentPagination++ : model.currentPagination > 0  ? model.currentPagination-- : '';
+        e.target.id==='next' ? model.currentPagination * model.batchSlice < model.currentResults.length ? model.currentPagination++ : ''
+                             : model.currentPagination > 0  ? model.currentPagination-- : '';
         view.printCurrentResults(model.currentResults);
         console.log(model.currentPagination);
     }
@@ -202,6 +216,8 @@ const controller = {
                 model.getTracks(searchValue).then(view.printCurrentResults);
                 controller.addSearchToList(searchValue);
                 view.inputMessage.setAttribute('visible','false');
+
+                controller.initializePagination();
             } else {
                 view.inputMessage.setAttribute('visible','true');
             }
@@ -212,7 +228,13 @@ const controller = {
                 model.getTracks(searchString).then(view.printCurrentResults);
                 view.dataDisplay.classList.add('displayed');
                 view.searchDisplay.classList.remove('displayed');
+                controller.initializePagination();
         },
+    // initialise the pagination
+    initializePagination:
+            () => {
+                model.currentPagination = 0;
+            },
     /**
      * Checks if searched value is present in an array which holds searched titles,
      * if not present in array already, it adds it.
