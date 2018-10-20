@@ -82,7 +82,7 @@ ul {
   width: calc(80rem - 30rem); }
 
 .play-chosen {
-  height: calc(100% - 4rem);
+  height: 100%;
   outline: 1px dashed #ccc;
   width: inherit; }
 
@@ -92,16 +92,24 @@ ul {
 
 .play-chosen__image-crop {
   width: inherit;
-  height: inherit;
+  height: 0;
   position: relative;
-  overflow-x: hidden; }
+  overflow-x: hidden;
+  padding-bottom: 100%;
+  }
 
 .play-chosen__image-display {
   width: auto;
-  height: 100%;
   position: absolute;
   left: 50%;
-  transform: translateX(-50%); }
+  transform: translateX(-50%);
+  height: 100%; }
+  .play-chosen__image-display.landscape-like {
+    width: 100%;
+    height: auto; }
+  .play-chosen__image-display.portrait-like {
+    width: auto;
+    height: 100%; }
 
 .soundcloud-strip {
   height: 4rem;

@@ -95,7 +95,8 @@ ul {
   width: $player-section-width;
 }
 .play-chosen{
-  height: calc(100% - #{$soundcloud-strip-height});
+  //height: calc(100% - #{$soundcloud-strip-height});
+  height: 100%;
   outline: 1px dashed #ccc;
   width: inherit;
 }
@@ -111,10 +112,19 @@ ul {
 }
 .play-chosen__image-display{
   width: auto;
-  height: 100%;
+  //height: 100%;
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
+  height: 100%;
+  &.landscape-like{
+    width: 100%;
+    height: auto;
+  }
+  &.portrait-like{
+    width: auto;
+    height: 100%;
+  }
 }
 .soundcloud-strip{
   height: $soundcloud-strip-height;

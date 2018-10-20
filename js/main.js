@@ -12,17 +12,11 @@ const model = {
     currentPagination: 0,
     paginationActivated: false,
     initiallySetSerchesFromLocalStorage: false,
+    LAST_SEARCHED: 'sound_clown.lastSearched',
     init: () => {
-        model.lastSearchedStrings = localStorage.getItem('lastSearched')
-                                  ? localStorage.getItem('lastSearched').split(',')
+        model.lastSearchedStrings = localStorage.getItem(model.LAST_SEARCHED)
+                                  ? localStorage.getItem(model.LAST_SEARCHED).split(',')
                                   : [];
-    },
-    get last() {
-        if (localStorage.getItem('lastSearched')) {
-            model.initiallySetSerchesFromLocalStorage = true;
-            return localStorage.getItem('lastSearched').split(',').slice(-5);
-        }
-        return ['asd'];
     },
     getTracks: (par) => {
         return SC.get('/tracks', {
@@ -137,6 +131,12 @@ const view = {
         const verOffset = elemBoundRect.top;
         return [horOffset,verOffset];
     },
+    isElemWideOrTall: (elem) => {
+        const height = elem.naturalHeight;
+        const width = elem.naturalWidth;
+        console.log([width,height]);
+        return height > width ? '' : 'portrait-like';
+    },
     setPaginationUI: () => {
         console.log('setPaginationUI started');
         if (model.currentResults.length < model.batchSlice){
@@ -194,19 +194,31 @@ const controller = {
      */
     addSearchToList:
         (searchValue) => {
-        // check for duplicates before adding to list
+        // check for duplicates failed, add to list
             if(model.lastSearchedStrings.indexOf(searchValue) ===  -1){
                 model.lastSearchedStrings.push(searchValue);
+                let lastFiveSearches = model.lastSearchedStrings.slice(-5);
+                model.lastSearchedStrings = lastFiveSearches;
+            // check for duplicates passed, move item to last position
+            } else {
+                const hasElementPosition = model.lastSearchedStrings.indexOf(searchValue);
+                const removedItem = model.lastSearchedStrings.splice(hasElementPosition,1);
+                model.lastSearchedStrings.push(removedItem[0]);
             }
-            console.log(Array.isArray(model.lastSearchedStrings));
-            window.localStorage.setItem('lastSearched', model.lastSearchedStrings);
+            // set last searches in local storage
+            window.localStorage.setItem(model.LAST_SEARCHED, model.lastSearchedStrings);
+            // print last searches in dom
             view.printLastSearches(model.lastSearchedStrings);
         },
     loadTrack:
         (id) => {
             const track = controller.getTrackById(model.currentResults,id);
             controller.trackImage.src = track.artwork_url || view.defaultImg;
+
+            controller.trackImage.classList.add(view.isElemWideOrTall(controller.trackImage));
+
             controller.trackImage.classList.add('animate-img-entrance');
+
             controller.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded);
             model.currentTrackId = id;
             controller.trackImage.trackId = id;
@@ -221,7 +233,6 @@ const controller = {
     }
 };
 
-//document.addEventListener("DOMContentLoaded", function(){model.lastSearchedStrings=['asd'];view.printLastSearches(model.lastSearchedStrings)});
 document.addEventListener("DOMContentLoaded", model.init);
 document.addEventListener("DOMContentLoaded", view.init);
 document.addEventListener("DOMContentLoaded", controller.init);
