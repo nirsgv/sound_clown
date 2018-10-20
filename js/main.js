@@ -71,13 +71,12 @@ const view = {
     },
 
     toggleHeaderActive: (event) => {
-        if (event.target.parentNode.id==="data_display_header"){
-            view.searchDisplayHeader.classList.remove('active');
-            event.target.parentNode.classList.add('active');
-        }
-        if (event.target.parentNode.id==="search_display_header"){
+        if (event.target.id==="search_display_header"){
             view.dataDisplayHeader.classList.remove('active');
-            event.target.parentNode.classList.add('active');
+            event.target.classList.add('active');
+        } else {
+            view.searchDisplayHeader.classList.remove('active');
+            event.target.classList.add('active');
         }
     },
     /**
