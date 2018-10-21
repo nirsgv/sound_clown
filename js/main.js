@@ -19,8 +19,6 @@
 
 const model = {
     currentTrackId: '',
-    //initialBatch: 200,
-    initialBatch: 6,
     lastSearchedStrings: [],
     currentResults: [],
     batchSlice: 6,
@@ -37,7 +35,7 @@ const model = {
     getTracks: (word) => {
         return SC.get('/tracks', {
             q: word,
-            limit: model.initialBatch,
+            limit: model.batchSlice,
             linked_partitioning: 1
         }).then(function (res) {
             model.currentResults = res.collection;
@@ -45,25 +43,22 @@ const model = {
             console.log(res);
             console.log(model.nextHref);
             console.log(model.currentResults);
-            //model.nextHrefButton.setAttribute('href', model.nextHref);
             model.nextHrefButton.href = model.nextHref;
             view.printCurrentResults(model.currentResults);
-            //return Promise.resolve(tracks);
-            //return tracks;
         });
     },
+
     getNextBatch: function(event) {
-        console.log(123);
         fetch(event.target.href, {
             method: 'get',
         })
       .then(res=>res.json())
-      .then(res=> {model.currentResults = res.collection;model.nextHref = res.next_href;model.nextHrefButton.href = model.nextHref;})
+      .then(res=> {model.currentResults = res.collection;
+                   model.nextHref = res.next_href;
+                   model.nextHrefButton.href = model.nextHref;})
       .then(()=>view.printCurrentResults(model.currentResults));
     }
 };
-
-
 
 const view = {
     defaultImg: "assets/img/soundcloud-logo.jpg",
@@ -72,8 +67,6 @@ const view = {
     searchGetInput: document.querySelector("#search_get_input"),
     searchSubmitter: document.querySelector('#search_submitter'),
     imageHolder: document.querySelector('#image-holder'),
-    prevPaginate: document.querySelector('#prev'),
-    nextPaginate: document.querySelector('#next'),
     inputMessage: document.querySelector('#input_message'),
     dataDisplayHeader: document.querySelector('#data_display_header'),
     searchDisplayHeader: document.querySelector('#search_display_header'),
@@ -84,9 +77,6 @@ const view = {
         view.searchSubmitter.addEventListener('click', controller.commitSearch,false);
         view.searchGetInput.addEventListener('change', controller.commitSearch),false;
         view.imageHolder.addEventListener('click', controller.playTrack,false);
-        view.prevPaginate.addEventListener('click', view.paginate,false);
-        view.nextPaginate.addEventListener('click', view.paginate,false);
-
         view.dataDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
         view.searchDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
         model.nextHrefButton.addEventListener('click',model.getNextBatch);
@@ -118,10 +108,10 @@ const view = {
      * Slices a delivered collection by current pagination value and batch amount.
      * @param {array} items - A collection of tracks data items.
      */
-    paginateResults: (items) => {
-        const paginatedPos = model.currentPagination * model.batchSlice;
-        return items.slice(paginatedPos, paginatedPos + model.batchSlice)
-    },
+    // paginateResults: (items) => {
+    //     const paginatedPos = model.currentPagination * model.batchSlice;
+    //     return items.slice(paginatedPos, paginatedPos + model.batchSlice)
+    // },
 
     /**
      * Goes through the sliced amount by pagination of searched tracks,
@@ -129,18 +119,14 @@ const view = {
      * @param {array} tracks - A collection of tracks data items.
      */
     printCurrentResults: (tracks) => {
-        console.log('printCurrentResults started');
-        //console.table(tracks);
         view.dataDisplay.innerHTML =
             tracks.map(t =>
                 `<li class="data-display__result" track-id="${t.id}" onclick="view.animateClonedIntoDestination(event,view.imageHolder,${t.id});">
                     <span class="data-display__link">${t.title}</span>
                 </li>`).join('');
-        view.setPaginationUI();
     },
 
     printLastSearches: (lastSearchesList) => {
-        console.log(lastSearchesList);
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
                 // todo: print the parameter as the argument for function
@@ -148,17 +134,15 @@ const view = {
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
+
     animateClonedIntoDestination: (event,destinationElem,id) => {
         const startPosition = view.getOffset(event.target);
         const destination = view.getCenter(destinationElem);
-        console.log(startPosition,destination);
-
         let clonedElemNode = event.target.cloneNode(true);
         clonedElemNode.classList.add('animated-cloned-element');
         const uniqueId=Math.random().toFixed(6);
         clonedElemNode.setAttribute('id',uniqueId);
         clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
-        //clonedElemNode.setAttribute('trackId', id);
         clonedElemNode.trackId = id;
         clonedElemNode.addEventListener('transitionend',view.cloneTransitionEnded,false);
         event.target.parentNode.append(clonedElemNode);
@@ -167,42 +151,38 @@ const view = {
             catchClonedElement.setAttribute('style', `position:fixed;left:${destination[0]}px;top:${destination[1]}px;`);
             },0);
     },
+
     cloneTransitionEnded: (event) => {
         controller.loadTrack(event.target.trackId);
         event.target.remove();
     },
+
     getCenter: (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
         const horCenter = elemBoundRect.left + (elemBoundRect.width/2);
         const verCenter = elemBoundRect.top + (elemBoundRect.height/2);
         return [horCenter,verCenter];
     },
+
     getOffset: (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
         const horOffset = elemBoundRect.left;
         const verOffset = elemBoundRect.top;
         return [horOffset,verOffset];
     },
+
     isElemWideOrTall: (elem) => {
         const height = elem.naturalHeight;
         const width = elem.naturalWidth;
-        console.log([width,height]);
         return height > width ? '' : 'portrait-like';
     },
-    setPaginationUI: () => {
-        console.log('setPaginationUI started');
-        if (model.currentResults.length < model.batchSlice){
-            view.prevPaginate.setAttribute('disabled', '');
-            view.nextPaginate.setAttribute('disabled', '');
-        }
-    },
-    paginate: (e) => {
-        console.dir(e.target.id);
-        e.target.id==='next' ? model.currentPagination * model.batchSlice < model.currentResults.length ? model.currentPagination++ : ''
-                             : model.currentPagination > 0  ? model.currentPagination-- : '';
-        view.printCurrentResults(model.currentResults);
-        console.log(model.currentPagination);
-    }
+
+    // paginate: (e) => {
+    //     console.dir(e.target.id);
+    //     e.target.id==='next' ? model.currentPagination * model.batchSlice < model.currentResults.length ? model.currentPagination++ : ''
+    //                          : model.currentPagination > 0  ? model.currentPagination-- : '';
+    //     view.printCurrentResults(model.currentResults);
+    // }
 };
 
 const controller = {
@@ -214,9 +194,13 @@ const controller = {
         SC.initialize({client_id: controller.user_id});
         controller.scPlayer = SC.Widget(controller.scIFrame);
         controller.playPauseToggleButton.addEventListener('click', controller.playTrack,false);
-        //controller.scPlayer.bind(SC.Widget.Events.READY, controller.onPlayReady)
     },
 
+    /**
+     * Checks if searched value is present in an array which holds searched titles,
+     * @param {string} tracks - Items collection.
+     * @param {string} id - string representing id of track.
+     */
     getTrackById:
         (tracks,id) => {
             return tracks.filter(track => track.id === id)[0];
@@ -235,17 +219,12 @@ const controller = {
         },
     commitSearchByLastSearchResult:
         (searchString) => {
-            //console.log(searchValue);
                 model.getTracks(searchString).then(view.printCurrentResults);
                 view.dataDisplay.classList.add('displayed');
                 view.searchDisplay.classList.remove('displayed');
                 controller.initializePagination();
         },
-    // initialise the pagination
-    initializePagination:
-            () => {
-                model.currentPagination = 0;
-            },
+
     /**
      * Checks if searched value is present in an array which holds searched titles,
      * if not present in array already, it adds it.
@@ -283,23 +262,11 @@ const controller = {
         (event) => {
             event.target.classList.remove('animate-img-entrance');
             controller.playPauseToggleButton.setAttribute('active',true);
-            controller.playPauseToggleButton.trackId = model.currentTrackId;
-            controller.playPauseToggleButton.setAttribute('data-current-action','Play');
         },
     playTrack:
         (event) => {
-        const PlayPauseButtonCurrentAction = event.target.getAttribute("data-current-action");
-        if (PlayPauseButtonCurrentAction === 'Pause'){
-            controller.scPlayer.pause();
-            controller.playPauseToggleButton.setAttribute('data-current-action','Play');
-        }
-        else if (PlayPauseButtonCurrentAction === 'Play'){
-            controller.scPlayer.play();
-            controller.playPauseToggleButton.setAttribute('data-current-action','Pause');
-        } else {
             controller.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
             controller.playPauseToggleButton.setAttribute('data-current-action','Pause');
-            }
         }
 };
 
