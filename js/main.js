@@ -23,39 +23,13 @@ const model = {
     currentResults: [],
     batchSlice: 6,
     lastSearchesBatchSlice: 5,
-    currentPagination: 0,
     LAST_SEARCHED: 'sound_clown.lastSearched',
     nextHref: '',
+    user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
     init: () => {
         model.lastSearchedStrings = localStorage.getItem(model.LAST_SEARCHED)
                                   ? localStorage.getItem(model.LAST_SEARCHED).split(',')
                                   : [];
-    },
-    getTracks: (word) => {
-        return SC.get('/tracks', {
-            q: word,
-            limit: model.batchSlice,
-            linked_partitioning: 1
-        }).then(function (res) {
-            model.currentResults = res.collection;
-            model.nextHref = res.next_href;
-            console.log(res);
-            console.log(model.nextHref);
-            console.log(model.currentResults);
-            view.nextHrefButton.href = model.nextHref;
-            view.printCurrentResults(model.currentResults);
-        });
-    },
-
-    getNextBatch: function(event) {
-        fetch(event.target.href, {
-            method: 'get',
-        })
-      .then(res=>res.json())
-      .then(res=> {model.currentResults = res.collection;
-                   model.nextHref = res.next_href;
-                   view.nextHrefButton.href = model.nextHref;})
-      .then(()=>view.printCurrentResults(model.currentResults));
     }
 };
 
@@ -70,29 +44,45 @@ const view = {
     dataDisplayHeader: document.querySelector('#data_display_header'),
     searchDisplayHeader: document.querySelector('#search_display_header'),
     nextHrefButton:  document.querySelector("#fetch_next"),
-    // the elements with 'data-tab-id' attribute
     tab_lis: document.querySelectorAll('[data-tab-id]'),
     init: () => {
         // set event handlers
         view.searchSubmitter.addEventListener('click', controller.commitSearch,false);
-        view.searchGetInput.addEventListener('change', controller.commitSearch),false;
+        view.searchGetInput.addEventListener('change', controller.commitSearch,false);
         view.imageHolder.addEventListener('click', controller.playTrack,false);
         view.dataDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
         view.searchDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
-        view.nextHrefButton.addEventListener('click',model.getNextBatch);
-
+        view.nextHrefButton.addEventListener('click',controller.getNextBatch,false);
         view.printLastSearches(model.lastSearchedStrings);
 
         // the elements with corresponding ids
         const tabs = Array.from(view.tab_lis)
             .map(t=>document.getElementById(t.getAttribute('data-tab-id')));
                 view.tab_lis.forEach((li, i)=> {
-                li.addEventListener('click', (event)=> {
-
+                li.addEventListener('click', ()=> {
                     tabs.forEach(t => t.classList.remove('displayed'));
                     tabs[i].classList.add('displayed');
             },false)
         });
+    },
+    getCenter: (elem) => {
+        const elemBoundRect = elem.getBoundingClientRect();
+        const horCenter = elemBoundRect.left + (elemBoundRect.width/2);
+        const verCenter = elemBoundRect.top + (elemBoundRect.height/2);
+        return [horCenter,verCenter];
+    },
+
+    getOffset: (elem) => {
+        const elemBoundRect = elem.getBoundingClientRect();
+        const horOffset = elemBoundRect.left;
+        const verOffset = elemBoundRect.top;
+        return [horOffset,verOffset];
+    },
+
+    isElemWideOrTall: (elem) => {
+        const height = elem.naturalHeight;
+        const width = elem.naturalWidth;
+        return height > width ? '' : 'portrait-like';
     },
 
     toggleHeaderActive: (event) => {
@@ -104,14 +94,6 @@ const view = {
             view.dataDisplayHeader.classList.add('active');
         }
     },
-    /**
-     * Slices a delivered collection by current pagination value and batch amount.
-     * @param {array} items - A collection of tracks data items.
-     */
-    // paginateResults: (items) => {
-    //     const paginatedPos = model.currentPagination * model.batchSlice;
-    //     return items.slice(paginatedPos, paginatedPos + model.batchSlice)
-    // },
 
     /**
      * Goes through the sliced amount by pagination of searched tracks,
@@ -136,11 +118,11 @@ const view = {
     },
 
     animateClonedIntoDestination: (event,destinationElem,id) => {
-        const startPosition = view.getOffset(event.target);
-        const destination = view.getCenter(destinationElem);
-        let clonedElemNode = event.target.cloneNode(true);
+        const startPosition = view.getOffset(event.target),
+              destination = view.getCenter(destinationElem),
+              clonedElemNode = event.target.cloneNode(true),
+              uniqueId=Math.random().toFixed(6);
         clonedElemNode.classList.add('animated-cloned-element');
-        const uniqueId=Math.random().toFixed(6);
         clonedElemNode.setAttribute('id',uniqueId);
         clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
         clonedElemNode.trackId = id;
@@ -155,43 +137,15 @@ const view = {
     cloneTransitionEnded: (event) => {
         controller.loadTrack(event.target.trackId);
         event.target.remove();
-    },
-
-    getCenter: (elem) => {
-        const elemBoundRect = elem.getBoundingClientRect();
-        const horCenter = elemBoundRect.left + (elemBoundRect.width/2);
-        const verCenter = elemBoundRect.top + (elemBoundRect.height/2);
-        return [horCenter,verCenter];
-    },
-
-    getOffset: (elem) => {
-        const elemBoundRect = elem.getBoundingClientRect();
-        const horOffset = elemBoundRect.left;
-        const verOffset = elemBoundRect.top;
-        return [horOffset,verOffset];
-    },
-
-    isElemWideOrTall: (elem) => {
-        const height = elem.naturalHeight;
-        const width = elem.naturalWidth;
-        return height > width ? '' : 'portrait-like';
-    },
-
-    // paginate: (e) => {
-    //     console.dir(e.target.id);
-    //     e.target.id==='next' ? model.currentPagination * model.batchSlice < model.currentResults.length ? model.currentPagination++ : ''
-    //                          : model.currentPagination > 0  ? model.currentPagination-- : '';
-    //     view.printCurrentResults(model.currentResults);
-    // }
+    }
 };
 
 const controller = {
     scIFrame: document.querySelector('#sc-player'),
     trackImage: document.querySelector('img#track-image'),
     playPauseToggleButton: document.querySelector('#play_pause_toggle_button'),
-    user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
     init: () => {
-        SC.initialize({client_id: controller.user_id});
+        SC.initialize({client_id: model.user_id});
         controller.scPlayer = SC.Widget(controller.scIFrame);
         controller.playPauseToggleButton.addEventListener('click', controller.playTrack,false);
     },
@@ -209,7 +163,7 @@ const controller = {
         () => {
             const searchValue = view.searchGetInput.value;
             if (searchValue !== '') {
-                model.getTracks(searchValue).then(view.printCurrentResults);
+                controller.getTracks(searchValue).then(view.printCurrentResults);
                 controller.addSearchToList(searchValue);
                 view.inputMessage.setAttribute('visible','false');
             } else {
@@ -218,11 +172,33 @@ const controller = {
         },
     commitSearchByLastSearchResult:
         (searchString) => {
-                model.getTracks(searchString).then(view.printCurrentResults);
+                controller.getTracks(searchString).then(view.printCurrentResults);
                 view.dataDisplay.classList.add('displayed');
                 view.searchDisplay.classList.remove('displayed');
         },
+    getTracks: (word) => {
+        return SC.get('/tracks', {
+            q: word,
+            limit: model.batchSlice,
+            linked_partitioning: 1
+        }).then(function (res) {
+            model.currentResults = res.collection;
+            model.nextHref = res.next_href;
+            view.nextHrefButton.href = model.nextHref;
+            view.printCurrentResults(model.currentResults);
+        });
+    },
 
+    getNextBatch: function(event) {
+        fetch(event.target.href, {
+            method: 'get',
+        })
+            .then(res=>res.json())
+            .then(res=> {model.currentResults = res.collection;
+                model.nextHref = res.next_href;
+                view.nextHrefButton.href = model.nextHref;})
+            .then(()=>view.printCurrentResults(model.currentResults));
+    },
     /**
      * Checks if searched value is present in an array which holds searched titles,
      * if not present in array already, it adds it.
