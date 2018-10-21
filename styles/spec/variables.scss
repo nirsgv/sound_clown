@@ -1,0 +1,17 @@
+$devices: (
+  desktop: 136.6rem,
+  mobile: 37.5rem
+);
+$min-breakpoints: (
+  desktop: map-get($devices, desktop) + 0.1,
+  mobile: map-get($devices, mobile) + 0.1
+);
+
+
+$main-width: 80rem;
+$search-section-width: 30rem;
+$player-section-width: calc(#{$main-width} - #{$search-section-width});
+$soundcloud-strip-height: 4rem;
+$search-section-bkg-color: #e0e0e0;
+$search-control-bkg-color: #f4f4f4;
+$paginate-strip-bkg-color: #ccc;

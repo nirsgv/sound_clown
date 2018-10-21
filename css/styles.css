@@ -163,7 +163,8 @@ ul {
     padding: 1.2rem 0;
     display: block;
     border-bottom: 1px solid #d8d8d8;
-    cursor: pointer; }
+    cursor: pointer;
+    color: #666; }
     #data_display li:last-child, #search_display li:last-child {
       border-bottom: none; }
 

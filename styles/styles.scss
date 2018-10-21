@@ -1,12 +1,8 @@
-@import url('https://fonts.googleapis.com/css?family=Open+Sans:400,700');
+@import "spec/variables";
+@import "spec/mixins";
+@import "spec/typography";
 
-$main-width: 80rem;
-$search-section-width: 30rem;
-$player-section-width: calc(#{$main-width} - #{$search-section-width});
-$soundcloud-strip-height: 4rem;
-$search-section-bkg-color: #e0e0e0;
-$search-control-bkg-color: #f4f4f4;
-$paginate-strip-bkg-color: #ccc;
+
 
 *, *:before, *:after{
   box-sizing: border-box;
@@ -198,6 +194,7 @@ ul {
     display: block;
     border-bottom: 1px solid #d8d8d8;
     cursor: pointer;
+    color: #666;
     &:last-child{
       border-bottom: none;
     }
