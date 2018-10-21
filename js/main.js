@@ -19,28 +19,48 @@
 
 const model = {
     currentTrackId: '',
-    initialBatch: 200,
+    //initialBatch: 200,
+    initialBatch: 6,
     lastSearchedStrings: [],
     currentResults: [],
     batchSlice: 6,
+    lastSearchesBatchSlice: 5,
     currentPagination: 0,
-    paginationActivated: false,
     LAST_SEARCHED: 'sound_clown.lastSearched',
+    nextHref: '',
+    nextHrefButton:  document.querySelector("#fetch_next"),
     init: () => {
         model.lastSearchedStrings = localStorage.getItem(model.LAST_SEARCHED)
                                   ? localStorage.getItem(model.LAST_SEARCHED).split(',')
                                   : [];
     },
-    getTracks: (par) => {
+    getTracks: (word) => {
         return SC.get('/tracks', {
+            q: word,
             limit: model.initialBatch,
-            q: par
-        }).then(function (tracks) {
-            model.currentResults = tracks;
-            //console.log(model.currentResults);
-            return Promise.resolve(tracks);
+            linked_partitioning: 1
+        }).then(function (res) {
+            model.currentResults = res.collection;
+            model.nextHref = res.next_href;
+            console.log(res);
+            console.log(model.nextHref);
+            console.log(model.currentResults);
+            //model.nextHrefButton.setAttribute('href', model.nextHref);
+            model.nextHrefButton.href = model.nextHref;
+            view.printCurrentResults(model.currentResults);
+            //return Promise.resolve(tracks);
+            //return tracks;
         });
     },
+    getNextBatch: function(event) {
+        console.log(123);
+        fetch(event.target.href, {
+            method: 'get',
+        })
+      .then(res=>res.json())
+      .then(res=> {model.currentResults = res.collection;model.nextHref = res.next_href;model.nextHrefButton.href = model.nextHref;})
+      .then(()=>view.printCurrentResults(model.currentResults));
+    }
 };
 
 
@@ -69,8 +89,10 @@ const view = {
 
         view.dataDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
         view.searchDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
+        model.nextHrefButton.addEventListener('click',model.getNextBatch);
 
         view.printLastSearches(model.lastSearchedStrings);
+
         // the elements with corresponding ids
         const tabs = Array.from(view.tab_lis)
             .map(t=>document.getElementById(t.getAttribute('data-tab-id')));
@@ -100,20 +122,17 @@ const view = {
         const paginatedPos = model.currentPagination * model.batchSlice;
         return items.slice(paginatedPos, paginatedPos + model.batchSlice)
     },
-    // toggleHeaderActive: (event) => {
-    //     if (!event.target.parentNode.classList.contains('active')){
-    //         event.target.parentNode.classList.add('active');
-    //     }
-    // },
+
     /**
      * Goes through the sliced amount by pagination of searched tracks,
      * builds list elements for the DOM and appends them.
      * @param {array} tracks - A collection of tracks data items.
      */
     printCurrentResults: (tracks) => {
+        console.log('printCurrentResults started');
         //console.table(tracks);
-        view.dataDisplay.innerHTML = view.paginateResults(tracks)
-            .map(t =>
+        view.dataDisplay.innerHTML =
+            tracks.map(t =>
                 `<li class="data-display__result" track-id="${t.id}" onclick="view.animateClonedIntoDestination(event,view.imageHolder,${t.id});">
                     <span class="data-display__link">${t.title}</span>
                 </li>`).join('');
@@ -141,15 +160,14 @@ const view = {
         clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
         //clonedElemNode.setAttribute('trackId', id);
         clonedElemNode.trackId = id;
-        clonedElemNode.addEventListener('transitionend',view.transitionEnded,false);
+        clonedElemNode.addEventListener('transitionend',view.cloneTransitionEnded,false);
         event.target.parentNode.append(clonedElemNode);
         const catchClonedElement = document.getElementById(uniqueId);
         window.setTimeout(function(){
             catchClonedElement.setAttribute('style', `position:fixed;left:${destination[0]}px;top:${destination[1]}px;`);
             },0);
-
     },
-    transitionEnded: (event) => {
+    cloneTransitionEnded: (event) => {
         controller.loadTrack(event.target.trackId);
         event.target.remove();
     },
@@ -196,14 +214,9 @@ const controller = {
         SC.initialize({client_id: controller.user_id});
         controller.scPlayer = SC.Widget(controller.scIFrame);
         controller.playPauseToggleButton.addEventListener('click', controller.playTrack,false);
-
         //controller.scPlayer.bind(SC.Widget.Events.READY, controller.onPlayReady)
-        // console.log(controller);
     },
-    onPlayReady:
-        () => {
-            console.log('player ready');
-        },
+
     getTrackById:
         (tracks,id) => {
             return tracks.filter(track => track.id === id)[0];
@@ -211,12 +224,10 @@ const controller = {
     commitSearch:
         () => {
             const searchValue = view.searchGetInput.value;
-            //console.log(searchValue);
             if (searchValue !== '') {
                 model.getTracks(searchValue).then(view.printCurrentResults);
                 controller.addSearchToList(searchValue);
                 view.inputMessage.setAttribute('visible','false');
-
                 controller.initializePagination();
             } else {
                 view.inputMessage.setAttribute('visible','true');
@@ -245,7 +256,7 @@ const controller = {
         // check for duplicates failed, add to list, cut list for five items length in total
             if(model.lastSearchedStrings.indexOf(searchValue) ===  -1){
                 model.lastSearchedStrings.push(searchValue);
-                let lastFiveSearches = model.lastSearchedStrings.slice(-5);
+                let lastFiveSearches = model.lastSearchedStrings.slice(-1 * model.lastSearchesBatchSlice);
                 model.lastSearchedStrings = lastFiveSearches;
             // check for duplicates passed, move item to last position
             } else {
