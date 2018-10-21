@@ -26,7 +26,6 @@ const model = {
     currentPagination: 0,
     LAST_SEARCHED: 'sound_clown.lastSearched',
     nextHref: '',
-    nextHrefButton:  document.querySelector("#fetch_next"),
     init: () => {
         model.lastSearchedStrings = localStorage.getItem(model.LAST_SEARCHED)
                                   ? localStorage.getItem(model.LAST_SEARCHED).split(',')
@@ -43,7 +42,7 @@ const model = {
             console.log(res);
             console.log(model.nextHref);
             console.log(model.currentResults);
-            model.nextHrefButton.href = model.nextHref;
+            view.nextHrefButton.href = model.nextHref;
             view.printCurrentResults(model.currentResults);
         });
     },
@@ -55,7 +54,7 @@ const model = {
       .then(res=>res.json())
       .then(res=> {model.currentResults = res.collection;
                    model.nextHref = res.next_href;
-                   model.nextHrefButton.href = model.nextHref;})
+                   view.nextHrefButton.href = model.nextHref;})
       .then(()=>view.printCurrentResults(model.currentResults));
     }
 };
@@ -70,6 +69,7 @@ const view = {
     inputMessage: document.querySelector('#input_message'),
     dataDisplayHeader: document.querySelector('#data_display_header'),
     searchDisplayHeader: document.querySelector('#search_display_header'),
+    nextHrefButton:  document.querySelector("#fetch_next"),
     // the elements with 'data-tab-id' attribute
     tab_lis: document.querySelectorAll('[data-tab-id]'),
     init: () => {
@@ -79,7 +79,7 @@ const view = {
         view.imageHolder.addEventListener('click', controller.playTrack,false);
         view.dataDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
         view.searchDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
-        model.nextHrefButton.addEventListener('click',model.getNextBatch);
+        view.nextHrefButton.addEventListener('click',model.getNextBatch);
 
         view.printLastSearches(model.lastSearchedStrings);
 
@@ -212,7 +212,6 @@ const controller = {
                 model.getTracks(searchValue).then(view.printCurrentResults);
                 controller.addSearchToList(searchValue);
                 view.inputMessage.setAttribute('visible','false');
-                controller.initializePagination();
             } else {
                 view.inputMessage.setAttribute('visible','true');
             }
@@ -222,7 +221,6 @@ const controller = {
                 model.getTracks(searchString).then(view.printCurrentResults);
                 view.dataDisplay.classList.add('displayed');
                 view.searchDisplay.classList.remove('displayed');
-                controller.initializePagination();
         },
 
     /**
@@ -235,7 +233,7 @@ const controller = {
         // check for duplicates failed, add to list, cut list for five items length in total
             if(model.lastSearchedStrings.indexOf(searchValue) ===  -1){
                 model.lastSearchedStrings.push(searchValue);
-                let lastFiveSearches = model.lastSearchedStrings.slice(-1 * model.lastSearchesBatchSlice);
+                const lastFiveSearches = model.lastSearchedStrings.slice(-1 * model.lastSearchesBatchSlice);
                 model.lastSearchedStrings = lastFiveSearches;
             // check for duplicates passed, move item to last position
             } else {
