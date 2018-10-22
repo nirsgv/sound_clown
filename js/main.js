@@ -53,7 +53,6 @@ const view = {
         // set event handlers
         view.searchSubmitter.addEventListener('click', controller.commitSearch,false);
         view.searchGetInput.addEventListener('change', controller.commitSearch,false);
-        view.imageHolder.addEventListener('click', controller.playTrack,false);
         view.dataDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
         view.searchDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
         view.nextHrefButton.addEventListener('click',controller.getNextBatch,false);
@@ -232,14 +231,18 @@ const controller = {
             view.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded,false);
             model.currentTrackId = id;
             view.trackImage.trackId = id;
+            view.imageHolder.addEventListener('click', controller.playTrack,false);
+
         },
     animateImageEntranceEnded:
         (event) => {
             event.target.classList.remove('animate-img-entrance');
             view.playPauseToggleButton.setAttribute('active',true);
+            view.trackImage.removeEventListener('animationend',controller.animateImageEntranceEnded,false);
         },
     playTrack:
         (event) => {
+            view.imageHolder.removeEventListener('click', controller.playTrack,false);
             controller.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
             view.playPauseToggleButton.setAttribute('data-current-action','Pause');
         }

@@ -1,6 +1,8 @@
 @import "spec/variables";
 @import "spec/mixins";
 @import "spec/typography";
+@import "spec/animations";
+@import "spec/general-modifiers";
 
 
 
@@ -89,10 +91,15 @@ ul {
   flex-direction: column;
   justify-content: center;
   border-radius: 2rem;
-  border: 1px solid #dfdfdf;
+  border: 1px solid $input-border-color;
   padding: 0.4rem 1rem;
   color: #444;
+  transition: border-color 0.2s ease-in-out;
+  &:focus{
+    border-color: $input-highlight-border-color;
+  }
 }
+
 .search-control__button {
   //height: $soundcloud-strip-height;
   cursor: pointer;
@@ -101,9 +108,12 @@ ul {
   padding: 0.8rem 2rem;
   color: #666;
   font-weight: 400;
-  border: 1px solid #dfdfdf;
-  /* text-shadow: 0px 1px 0px #aaa; */
+  border: 1px solid $input-border-color;
   font-size: 1.2rem;
+  transition: border-color 0.2s ease-in-out;
+  &:active{
+    border-color: $input-highlight-border-color;
+  }
 }
 .data-toggler-and-display-wrp {
   height: calc(100% - 10rem);
@@ -144,29 +154,41 @@ ul {
   }
 }
 .play-chosen{
-  //height: calc(100% - #{$soundcloud-strip-height});
   height: 100%;
   width: inherit;
   &:after{
     content: '';
     position: absolute;
-    width: 5rem;
-    height: 5rem;
-    bottom: 0;
-    right: 0;
-    pointer-events: none;
-    background-size: 10rem;
-    background-position: center;
+    background-color: rgba(0, 0, 0, 0.4);
     background-repeat: no-repeat;
     background-image: url(../assets/img/play-solid.svg);
-    background-size: 2rem;
+    transition: all 0.15s ease-in-out;
+    background-size: 1rem;
+    pointer-events: none;
+    border-radius: 0rem;
+    background-position: 1.7rem;
+    width: 4rem;
+    height: 4rem;
+    bottom: 50%;
+    right: 50%;
     opacity: 1;
-    transition: all 0.35s ease-in-out;
+    transform: translate(50%,50%) scale(3);
+    @media screen and (min-width: 675px + 1){
+      width: 4rem;
+      height: 4rem;
+      bottom: 0rem;
+      right: 0rem;
+      background-size: 10rem;
+      background-position: 1.7rem;
+      background-size: 1rem;
+      transform: none;
+    }
   }
-  &:hover{
+  &:hover,&:active{
     &:after{
       opacity: .9;
-      background-size: 2.5rem;
+      background-size: 1.4rem;
+      background-position: 1.5rem;
     }
   }
 }
@@ -178,7 +200,7 @@ ul {
   cursor: pointer;
   &:after{
     content: '';
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 35%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.7) 0%, rgba(0, 0, 0, 0) 25%);
     position: absolute;
     width: 100%;
     height: 100%;
@@ -186,11 +208,11 @@ ul {
     left: 0;
     pointer-events: none;
     transition: opacity 0.35s ease-in-out;
-    opacity: 1;
+    opacity: .5;
   }
   &:hover{
     &:after{
-      opacity: .5;
+      opacity: .65;
     }
   }
 }
@@ -280,21 +302,14 @@ ul {
   transition: all 0.5s ease-out;
   animation-name: fade-out;
   animation-timing-function: ease-in;
-  animation-duration: .25s;
+  animation-duration: .15s;
 }
-@keyframes fade-out {
-  from {opacity: 0.75;}
-  to {opacity: 0;}
-}
+
 .animate-img-entrance{
   filter: blur(0px);
   animation-name: blur-out;
   animation-timing-function: ease-out;
   animation-duration: .75s;
-}
-@keyframes blur-out {
-  from {filter: blur(20px);}
-  to {filter: blur(0px);}
 }
 
 #play_pause_toggle_button {

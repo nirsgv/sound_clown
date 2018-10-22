@@ -1,0 +1,10 @@
+
+@keyframes fade-out {
+  from {opacity: 0.75;}
+  to {opacity: 0;}
+}
+
+@keyframes blur-out {
+  from {filter: blur(20px);}
+  to {filter: blur(0px);}
+}
