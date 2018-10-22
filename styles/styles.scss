@@ -155,7 +155,7 @@ ul {
 .play-chosen{
   height: 100%;
   width: inherit;
-  &.loaded-item:after{
+  &:after{
     content: '';
     position: absolute;
     background-color: rgba(0, 0, 0, 0.4);
@@ -170,24 +170,28 @@ ul {
     height: 4rem;
     bottom: 50%;
     right: 50%;
-    opacity: 1;
+    opacity: 0;
     transform: translate(50%,50%) scale(3);
     @media screen and (min-width: 675px + 1){
       width: 4rem;
       height: 4rem;
       bottom: 0rem;
       right: 0rem;
-      background-size: 10rem;
       background-position: 1.7rem;
       background-size: 1rem;
       transform: none;
     }
   }
-  &:hover,&:active{
+  &.loaded-item{
     &:after{
-      opacity: .9;
-      background-size: 1.4rem;
-      background-position: 1.5rem;
+      opacity: 1;
+    }
+    &:hover,&:active{
+      &:after{
+        opacity: .9;
+        background-size: 1.4rem;
+        background-position: 1.5rem;
+      }
     }
   }
 }

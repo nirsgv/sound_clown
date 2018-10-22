@@ -26,6 +26,7 @@ const Model = function(){
     this.LAST_SEARCHED = 'sound_clown.lastSearched';
     this.nextHref = '';
     this.user_id = 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg';
+    this.defaultImg = "assets/img/soundcloud-logo.jpg";
     this.init = () => {
         this.lastSearchedStrings = localStorage.getItem(this.LAST_SEARCHED)
                                   ? localStorage.getItem(this.LAST_SEARCHED).split(',')
@@ -34,7 +35,6 @@ const Model = function(){
 };
 
 const View = function(model){
-    this.defaultImg = "assets/img/soundcloud-logo.jpg";
     this.dataDisplay =  document.getElementById("data_display");
     this.searchDisplay =  document.getElementById("search_display");
     this.searchGetInput = document.getElementById("search_get_input");
@@ -227,7 +227,7 @@ const controller = {
     loadTrack:
         (id) => {
             const track = controller.getTrackById(model.currentResults,id);
-            view.trackImage.src = track.artwork_url || view.defaultImg;
+            view.trackImage.src = track.artwork_url || model.defaultImg;
             view.trackImage.classList.add(view.isElemWideOrTall(view.trackImage));
             view.trackImage.classList.add('animate-img-entrance');
             view.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded,false);
