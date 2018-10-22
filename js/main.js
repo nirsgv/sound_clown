@@ -17,48 +17,47 @@
 //     return {};
 // })();
 
-const model = {
-    currentTrackId: '',
-    lastSearchedStrings: [],
-    currentResults: [],
-    batchSlice: 6,
-    lastSearchesBatchSlice: 5,
-    LAST_SEARCHED: 'sound_clown.lastSearched',
-    nextHref: '',
-    user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
-
-    init: () => {
-        model.lastSearchedStrings = localStorage.getItem(model.LAST_SEARCHED)
-                                  ? localStorage.getItem(model.LAST_SEARCHED).split(',')
+const Model = function(){
+    this.currentTrackId = '';
+    this.lastSearchedStrings = [];
+    this.currentResults = [];
+    this.batchSlice = 6;
+    this.lastSearchesBatchSlice = 5;
+    this.LAST_SEARCHED = 'sound_clown.lastSearched';
+    this.nextHref = '';
+    this.user_id = 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg';
+    this.init = () => {
+        this.lastSearchedStrings = localStorage.getItem(this.LAST_SEARCHED)
+                                  ? localStorage.getItem(this.LAST_SEARCHED).split(',')
                                   : [];
     }
 };
 
-const view = {
-    defaultImg: "assets/img/soundcloud-logo.jpg",
-    dataDisplay:  document.getElementById("data_display"),
-    searchDisplay:  document.getElementById("search_display"),
-    searchGetInput: document.getElementById("search_get_input"),
-    searchSubmitter: document.getElementById('search_submitter'),
-    imageHolder: document.getElementById('image-holder'),
-    inputMessage: document.getElementById('input_message'),
-    dataDisplayHeader: document.getElementById('data_display_header'),
-    searchDisplayHeader: document.getElementById('search_display_header'),
-    nextHrefButton:  document.getElementById("fetch_next"),
-    tab_lis: document.querySelectorAll('[data-tab-id]'),
-    scIFrame: document.getElementById('sc-player'),
-    trackImage: document.querySelector('img#track-image'),
-    playChosen: document.querySelector('.play-chosen'),
-    soundCloudStrip: document.querySelector('.soundcloud-strip'),
+const View = function(model){
+    this.defaultImg = "assets/img/soundcloud-logo.jpg";
+    this.dataDisplay =  document.getElementById("data_display");
+    this.searchDisplay =  document.getElementById("search_display");
+    this.searchGetInput = document.getElementById("search_get_input");
+    this.searchSubmitter = document.getElementById('search_submitter');
+    this.imageHolder = document.getElementById('image-holder');
+    this.inputMessage = document.getElementById('input_message');
+    this.dataDisplayHeader = document.getElementById('data_display_header');
+    this.searchDisplayHeader = document.getElementById('search_display_header');
+    this.nextHrefButton =  document.getElementById("fetch_next");
+    this.tab_lis = document.querySelectorAll('[data-tab-id]');
+    this.scIFrame = document.getElementById('sc-player');
+    this.trackImage = document.querySelector('img#track-image');
+    this.playChosen = document.querySelector('.play-chosen');
+    this.soundCloudStrip = document.querySelector('.soundcloud-strip');
 
-    init: () => {
+    this.init = () => {
         // set event handlers
-        view.searchSubmitter.addEventListener('click', controller.commitSearch,false);
-        view.searchGetInput.addEventListener('change', controller.commitSearch,false);
-        view.dataDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
-        view.searchDisplayHeader.addEventListener('click', view.toggleHeaderActive,false);
-        view.nextHrefButton.addEventListener('click',controller.getNextBatch,false);
-        view.printLastSearches(model.lastSearchedStrings);
+        this.searchSubmitter.addEventListener('click', controller.commitSearch,false);
+        this.searchGetInput.addEventListener('change', controller.commitSearch,false);
+        this.dataDisplayHeader.addEventListener('click', this.toggleHeaderActive,false);
+        this.searchDisplayHeader.addEventListener('click', this.toggleHeaderActive,false);
+        this.nextHrefButton.addEventListener('click',controller.getNextBatch,false);
+        this.printLastSearches(model.lastSearchedStrings);
 
         // the elements with corresponding ids
         const tabs = Array.from(view.tab_lis)
@@ -70,27 +69,27 @@ const view = {
             },false)
         });
     },
-    getCenter: (elem) => {
+    this.getCenter = (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
         const horCenter = elemBoundRect.left + (elemBoundRect.width/2);
         const verCenter = elemBoundRect.top + (elemBoundRect.height/2);
         return [horCenter,verCenter];
     },
 
-    getOffset: (elem) => {
+    this.getOffset = (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
         const horOffset = elemBoundRect.left;
         const verOffset = elemBoundRect.top;
         return [horOffset,verOffset];
     },
 
-    isElemWideOrTall: (elem) => {
+    this.isElemWideOrTall = (elem) => {
         const height = elem.naturalHeight;
         const width = elem.naturalWidth;
         return height > width ? '' : 'portrait-like';
     },
 
-    toggleHeaderActive: (event) => {
+    this.toggleHeaderActive = (event) => {
         if (event.target.id==="search_display_header"){
             view.dataDisplayHeader.classList.remove('active');
             view.searchDisplayHeader.classList.add('active');
@@ -105,7 +104,7 @@ const view = {
      * builds list elements for the DOM and appends them.
      * @param {array} tracks - A collection of tracks data items.
      */
-    printCurrentResults: (tracks) => {
+    this.printCurrentResults = (tracks) => {
         view.dataDisplay.innerHTML =
             tracks.map(t =>
                 `<li class="data-display__result" track-id="${t.id}" onclick="view.animateClonedIntoDestination(event,view.imageHolder,${t.id});">
@@ -113,7 +112,7 @@ const view = {
                 </li>`).join('');
     },
 
-    printLastSearches: (lastSearchesList) => {
+    this.printLastSearches = (lastSearchesList) => {
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
                 // todo: print the parameter as the argument for function
@@ -122,7 +121,7 @@ const view = {
                 </li>`).join('');
     },
 
-    animateClonedIntoDestination: (event,destinationElem,id) => {
+    this.animateClonedIntoDestination = (event,destinationElem,id) => {
         const startPosition = view.getOffset(event.target),
               destination = view.getCenter(destinationElem),
               clonedElemNode = event.target.cloneNode(true),
@@ -139,10 +138,11 @@ const view = {
             },0);
     },
 
-    cloneTransitionEnded: (event) => {
+    this.cloneTransitionEnded = (event) => {
         controller.loadTrack(event.target.trackId);
         event.target.remove();
     }
+
 };
 
 const controller = {
@@ -240,7 +240,6 @@ const controller = {
     animateImageEntranceEnded:
         (event) => {
             event.target.classList.remove('animate-img-entrance');
-            view.playPauseToggleButton.setAttribute('active',true);
             view.trackImage.removeEventListener('animationend',controller.animateImageEntranceEnded,false);
         },
     playTrack:
@@ -250,6 +249,9 @@ const controller = {
             view.playChosen.classList.remove('loaded-item');
         }
 };
+
+const model = new Model();
+const view = new View(model);
 
 document.addEventListener("DOMContentLoaded", model.init);
 document.addEventListener("DOMContentLoaded", view.init);
