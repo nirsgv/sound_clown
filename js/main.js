@@ -31,6 +31,47 @@ const Model = function(){
         this.lastSearchedStrings = localStorage.getItem(this.LAST_SEARCHED)
                                   ? localStorage.getItem(this.LAST_SEARCHED).split(',')
                                   : [];
+    };
+    this.commitSearch =
+        () => {
+            const searchValue = view.searchGetInput.value;
+            if (searchValue !== '') {
+                this.getTracks(searchValue).then(view.printCurrentResults);
+                controller.addSearchToList(searchValue);
+                view.inputMessage.setAttribute('visible','false');
+            } else {
+                view.inputMessage.setAttribute('visible','true');
+            }
+        };
+    this.commitSearchByLastSearchResult =
+    (searchString) => {
+        this.getTracks(searchString).then(view.printCurrentResults);
+        view.dataDisplay.classList.add('displayed');
+        view.searchDisplay.classList.remove('displayed');
+    };
+    this.getTracks =
+        (word) => {
+        return SC.get('/tracks', {
+            q: word,
+            limit: this.batchSlice,
+            linked_partitioning: 1
+        }).then(function (res) {
+            model.currentResults = res.collection;
+            model.nextHref = res.next_href;
+            view.nextHrefButton.href = model.nextHref;
+            view.printCurrentResults(model.currentResults);
+        });
+    };
+
+    this.getNextBatch =  function(event) {
+        fetch(event.target.href, {
+            method: 'get',
+        })
+            .then(res=>res.json())
+            .then(res=> {model.currentResults = res.collection;
+                model.nextHref = res.next_href;
+                view.nextHrefButton.href = model.nextHref;})
+            .then(()=>view.printCurrentResults(model.currentResults));
     }
 };
 
@@ -52,11 +93,11 @@ const View = function(model){
 
     this.init = () => {
         // set event handlers
-        this.searchSubmitter.addEventListener('click', controller.commitSearch,false);
-        this.searchGetInput.addEventListener('change', controller.commitSearch,false);
+        this.searchSubmitter.addEventListener('click', model.commitSearch,false);
+        this.searchGetInput.addEventListener('change', model.commitSearch,false);
         this.dataDisplayHeader.addEventListener('click', this.toggleHeaderActive,false);
         this.searchDisplayHeader.addEventListener('click', this.toggleHeaderActive,false);
-        this.nextHrefButton.addEventListener('click',controller.getNextBatch,false);
+        this.nextHrefButton.addEventListener('click',model.getNextBatch,false);
         this.printLastSearches(model.lastSearchedStrings);
 
         // the elements with corresponding ids
@@ -124,7 +165,7 @@ const View = function(model){
         view.searchDisplay.innerHTML = lastSearchesList
             .map((searchString, index, array) =>
                 // todo: print the parameter as the argument for function
-                `<li class="search-display__result" searchPar="${searchString}" onclick="controller.commitSearchByLastSearchResult('${searchString}');view.toggleHeaderActive(event)">
+                `<li class="search-display__result" searchPar="${searchString}" onclick="model.commitSearchByLastSearchResult('${searchString}');view.toggleHeaderActive(event)">
                     <span class="search-display__link">${searchString}</span>
                 </li>`).join('');
     },
@@ -156,8 +197,8 @@ const View = function(model){
 
 };
 
-const controller = {
-    init: () => {
+const Controller = function(view) {
+    this.init = () => {
         SC.initialize({client_id: model.user_id});
         controller.scPlayer = SC.Widget(view.scIFrame);
         //view.playPauseToggleButton.addEventListener('click', controller.playTrack,false);
@@ -168,56 +209,16 @@ const controller = {
      * @param {string} tracks - Items collection.
      * @param {string} id - string representing id of track.
      */
-    getTrackById:
+     this.getTrackById =
         (tracks,id) => {
             return tracks.filter(track => track.id === id)[0];
         },
-    commitSearch:
-        () => {
-            const searchValue = view.searchGetInput.value;
-            if (searchValue !== '') {
-                controller.getTracks(searchValue).then(view.printCurrentResults);
-                controller.addSearchToList(searchValue);
-                view.inputMessage.setAttribute('visible','false');
-            } else {
-                view.inputMessage.setAttribute('visible','true');
-            }
-        },
-    commitSearchByLastSearchResult:
-        (searchString) => {
-                controller.getTracks(searchString).then(view.printCurrentResults);
-                view.dataDisplay.classList.add('displayed');
-                view.searchDisplay.classList.remove('displayed');
-        },
-    getTracks: (word) => {
-        return SC.get('/tracks', {
-            q: word,
-            limit: model.batchSlice,
-            linked_partitioning: 1
-        }).then(function (res) {
-            model.currentResults = res.collection;
-            model.nextHref = res.next_href;
-            view.nextHrefButton.href = model.nextHref;
-            view.printCurrentResults(model.currentResults);
-        });
-    },
-
-    getNextBatch: function(event) {
-        fetch(event.target.href, {
-            method: 'get',
-        })
-            .then(res=>res.json())
-            .then(res=> {model.currentResults = res.collection;
-                model.nextHref = res.next_href;
-                view.nextHrefButton.href = model.nextHref;})
-            .then(()=>view.printCurrentResults(model.currentResults));
-    },
     /**
      * Checks if searched value is present in an array which holds searched titles,
      * if not present in array already, it adds it.
      * @param {string} searchValue - Name of search title.
      */
-    addSearchToList:
+    this.addSearchToList =
         (searchValue) => {
         // check for duplicates failed, add to list, cut list for five items length in total
             if(model.lastSearchedStrings.indexOf(searchValue) ===  -1){
@@ -235,34 +236,37 @@ const controller = {
             // print last searches in dom
             view.printLastSearches(model.lastSearchedStrings);
         },
-    loadTrack:
+    this.loadTrack =
         (id) => {
-            const track = controller.getTrackById(model.currentResults,id);
+            const track = this.getTrackById(model.currentResults,id);
             view.trackImage.src = track.artwork_url || model.defaultImg;
             view.trackImage.classList.add(view.isElemWideOrTall(view.trackImage));
             view.trackImage.classList.add('animate-img-entrance');
-            view.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded,false);
+            view.trackImage.addEventListener('animationend',this.animateImageEntranceEnded,false);
             model.currentTrackId = id;
             view.trackImage.trackId = id;
-            view.imageHolder.addEventListener('click', controller.playTrack,false);
+            view.imageHolder.addEventListener('click', this.playTrack,false);
             view.playChosen.classList.add('loaded-item');
-            view.soundCloudStrip.classList.add('soundcloud-strip--loaded-item');
         },
-    animateImageEntranceEnded:
+    this.animateImageEntranceEnded =
         (event) => {
             event.target.classList.remove('animate-img-entrance');
-            view.trackImage.removeEventListener('animationend',controller.animateImageEntranceEnded,false);
+            view.trackImage.removeEventListener('animationend',this.animateImageEntranceEnded,false);
         },
-    playTrack:
+    this.playTrack =
         (event) => {
-            view.imageHolder.removeEventListener('click', controller.playTrack,false);
-            controller.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
+            view.imageHolder.removeEventListener('click', this.playTrack,false);
+            this.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
+            view.soundCloudStrip.classList.add('soundcloud-strip--loaded-item');
             view.playChosen.classList.remove('loaded-item');
         }
 };
 
+
+
 const model = new Model();
 const view = new View(model);
+const controller = new Controller(view);
 
 document.addEventListener("DOMContentLoaded", model.init);
 document.addEventListener("DOMContentLoaded", view.init);
