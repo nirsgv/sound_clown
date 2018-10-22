@@ -143,17 +143,17 @@ ul {
 .play-chosen {
   height: 100%;
   width: inherit; }
-  .play-chosen:after {
+  .play-chosen.loaded-item:after {
     content: '';
     position: absolute;
     background-color: rgba(0, 0, 0, 0.4);
     background-repeat: no-repeat;
     background-image: url(../assets/img/play-solid.svg);
+    background-position: 1.7rem;
     transition: all 0.15s ease-in-out;
     background-size: 1rem;
     pointer-events: none;
     border-radius: 0rem;
-    background-position: 1.7rem;
     width: 4rem;
     height: 4rem;
     bottom: 50%;
@@ -161,7 +161,7 @@ ul {
     opacity: 1;
     transform: translate(50%, 50%) scale(3); }
     @media screen and (min-width: 676px) {
-      .play-chosen:after {
+      .play-chosen.loaded-item:after {
         width: 4rem;
         height: 4rem;
         bottom: 0rem;
@@ -214,20 +214,18 @@ ul {
     width: auto;
     height: 100%; }
 
-.soundcloud-strip {
-  height: 4rem;
-  outline: 1px dashed #aaa; }
-
 /*end of .search-section*/
 .soundcloud-strip {
-  outline: 1px dashed #aaa;
   position: fixed;
   height: 16.6rem;
   width: 100%;
   left: 0;
   padding: 0;
   margin: 0;
-  bottom: 0; }
+  bottom: -16.6rem;
+  transition: bottom 0.2s ease-in-out; }
+  .soundcloud-strip.soundcloud-strip--loaded-item {
+    bottom: 0; }
 
 #data_display, #search_display {
   display: none;
@@ -283,7 +281,7 @@ ul {
   z-index: 4;
   position: absolute;
   width: 100%;
-  height: 4rem;
+  height: 16.6rem;
   text-align: right;
   bottom: 0;
   left: 0;

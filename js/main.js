@@ -36,18 +36,20 @@ const model = {
 
 const view = {
     defaultImg: "assets/img/soundcloud-logo.jpg",
-    dataDisplay:  document.querySelector("#data_display"),
-    searchDisplay:  document.querySelector("#search_display"),
-    searchGetInput: document.querySelector("#search_get_input"),
-    searchSubmitter: document.querySelector('#search_submitter'),
-    imageHolder: document.querySelector('#image-holder'),
-    inputMessage: document.querySelector('#input_message'),
-    dataDisplayHeader: document.querySelector('#data_display_header'),
-    searchDisplayHeader: document.querySelector('#search_display_header'),
-    nextHrefButton:  document.querySelector("#fetch_next"),
+    dataDisplay:  document.getElementById("data_display"),
+    searchDisplay:  document.getElementById("search_display"),
+    searchGetInput: document.getElementById("search_get_input"),
+    searchSubmitter: document.getElementById('search_submitter'),
+    imageHolder: document.getElementById('image-holder'),
+    inputMessage: document.getElementById('input_message'),
+    dataDisplayHeader: document.getElementById('data_display_header'),
+    searchDisplayHeader: document.getElementById('search_display_header'),
+    nextHrefButton:  document.getElementById("fetch_next"),
     tab_lis: document.querySelectorAll('[data-tab-id]'),
-    scIFrame: document.querySelector('#sc-player'),
+    scIFrame: document.getElementById('sc-player'),
     trackImage: document.querySelector('img#track-image'),
+    playChosen: document.querySelector('.play-chosen'),
+    soundCloudStrip: document.querySelector('.soundcloud-strip'),
 
     init: () => {
         // set event handlers
@@ -232,7 +234,8 @@ const controller = {
             model.currentTrackId = id;
             view.trackImage.trackId = id;
             view.imageHolder.addEventListener('click', controller.playTrack,false);
-
+            view.playChosen.classList.add('loaded-item');
+            view.soundCloudStrip.classList.add('soundcloud-strip--loaded-item');
         },
     animateImageEntranceEnded:
         (event) => {
@@ -244,7 +247,7 @@ const controller = {
         (event) => {
             view.imageHolder.removeEventListener('click', controller.playTrack,false);
             controller.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
-            view.playPauseToggleButton.setAttribute('data-current-action','Pause');
+            view.playChosen.classList.remove('loaded-item');
         }
 };
 

@@ -101,7 +101,6 @@ ul {
 }
 
 .search-control__button {
-  //height: $soundcloud-strip-height;
   cursor: pointer;
   background-color: #fff;
   border-radius: 1.8rem;
@@ -133,7 +132,7 @@ ul {
 .paginate-strip {
   position: absolute;
   bottom: 0;
-  height: $soundcloud-strip-height;
+  height: 4rem;
   width: 100%;
   display: flex;
   justify-content: flex-end;
@@ -156,17 +155,17 @@ ul {
 .play-chosen{
   height: 100%;
   width: inherit;
-  &:after{
+  &.loaded-item:after{
     content: '';
     position: absolute;
     background-color: rgba(0, 0, 0, 0.4);
     background-repeat: no-repeat;
     background-image: url(../assets/img/play-solid.svg);
+    background-position: 1.7rem;
     transition: all 0.15s ease-in-out;
     background-size: 1rem;
     pointer-events: none;
     border-radius: 0rem;
-    background-position: 1.7rem;
     width: 4rem;
     height: 4rem;
     bottom: 50%;
@@ -238,23 +237,21 @@ ul {
     height: 100%;
   }
 }
-.soundcloud-strip{
-  height: $soundcloud-strip-height;
-  outline: 1px dashed #aaa;
-}
-
 /*end of .search-section*/
 
 // todo: remove previous class
 .soundcloud-strip {
-  outline: 1px dashed #aaa;
   position: fixed;
-  height: 16.6rem;
+  height: $soundcloud-strip-height;
   width: 100%;
   left: 0;
   padding: 0;
   margin: 0;
-  bottom: 0;
+  bottom: -16.6rem;
+  transition: bottom 0.2s ease-in-out;
+  &.soundcloud-strip--loaded-item{
+    bottom: 0;
+  }
 }
 #data_display,#search_display{
   display: none;
