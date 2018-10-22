@@ -1,21 +1,4 @@
 "use strict";
-//todo: divide loadTrack into load image src and load url
-//todo: put all global variables into an IIFE
-//todo: pagination end and pagination disabled handling
-//todo: play button rendering handling
-// function Model() {
-//
-//
-//     return {
-//
-//     }   ;
-// }
-// //const model = new Model();
-//
-// const model = (function (){
-//     // private
-//     return {};
-// })();
 
 const Model = function(){
     this.currentTrackId = '';
