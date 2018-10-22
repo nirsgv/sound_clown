@@ -78,9 +78,17 @@ const View = function(model){
 
     this.getOffset = (elem) => {
         const elemBoundRect = elem.getBoundingClientRect();
+        console.log('elemBoundRect: ',elemBoundRect);
         const horOffset = elemBoundRect.left;
         const verOffset = elemBoundRect.top;
         return [horOffset,verOffset];
+    },
+
+    this.getSize = (elem) => {
+        const elemBoundRect = elem.getBoundingClientRect();
+        const width = elemBoundRect.width;
+        const height = elemBoundRect.height;
+        return [width,height];
     },
 
     this.isElemWideOrTall = (elem) => {
@@ -124,6 +132,7 @@ const View = function(model){
     this.animateClonedIntoDestination = (event,destinationElem,id) => {
         const startPosition = view.getOffset(event.target),
               destination = view.getCenter(destinationElem),
+              elemSize = view.getSize(event.target),
               clonedElemNode = event.target.cloneNode(true),
               uniqueId=Math.random().toFixed(6);
         clonedElemNode.classList.add('animated-cloned-element');
@@ -131,10 +140,12 @@ const View = function(model){
         clonedElemNode.setAttribute('style', `position:fixed;left:${startPosition[0]}px;top:${startPosition[1]}px;`);
         clonedElemNode.trackId = id;
         clonedElemNode.addEventListener('transitionend',view.cloneTransitionEnded,false);
+        const realXcenter = destination[0] - elemSize[0]/2;
+        const realYcenter = destination[1] - elemSize[1]/2;
         event.target.parentNode.append(clonedElemNode);
         const catchClonedElement = document.getElementById(uniqueId);
         window.setTimeout(function(){
-            catchClonedElement.setAttribute('style', `position:fixed;left:${destination[0]}px;top:${destination[1]}px;`);
+            catchClonedElement.setAttribute('style', `position:fixed;left:${realXcenter}px;top:${realYcenter}px;`);
             },0);
     },
 
