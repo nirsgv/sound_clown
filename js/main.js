@@ -26,6 +26,7 @@ const model = {
     LAST_SEARCHED: 'sound_clown.lastSearched',
     nextHref: '',
     user_id: 'E8IqLGTYxHll6SyaM7LKrMzKveWkcrjg',
+
     init: () => {
         model.lastSearchedStrings = localStorage.getItem(model.LAST_SEARCHED)
                                   ? localStorage.getItem(model.LAST_SEARCHED).split(',')
@@ -45,6 +46,9 @@ const view = {
     searchDisplayHeader: document.querySelector('#search_display_header'),
     nextHrefButton:  document.querySelector("#fetch_next"),
     tab_lis: document.querySelectorAll('[data-tab-id]'),
+    scIFrame: document.querySelector('#sc-player'),
+    trackImage: document.querySelector('img#track-image'),
+
     init: () => {
         // set event handlers
         view.searchSubmitter.addEventListener('click', controller.commitSearch,false);
@@ -141,13 +145,10 @@ const view = {
 };
 
 const controller = {
-    scIFrame: document.querySelector('#sc-player'),
-    trackImage: document.querySelector('img#track-image'),
-    playPauseToggleButton: document.querySelector('#play_pause_toggle_button'),
     init: () => {
         SC.initialize({client_id: model.user_id});
-        controller.scPlayer = SC.Widget(controller.scIFrame);
-        controller.playPauseToggleButton.addEventListener('click', controller.playTrack,false);
+        controller.scPlayer = SC.Widget(view.scIFrame);
+        //view.playPauseToggleButton.addEventListener('click', controller.playTrack,false);
     },
 
     /**
@@ -225,22 +226,22 @@ const controller = {
     loadTrack:
         (id) => {
             const track = controller.getTrackById(model.currentResults,id);
-            controller.trackImage.src = track.artwork_url || view.defaultImg;
-            controller.trackImage.classList.add(view.isElemWideOrTall(controller.trackImage));
-            controller.trackImage.classList.add('animate-img-entrance');
-            controller.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded,false);
+            view.trackImage.src = track.artwork_url || view.defaultImg;
+            view.trackImage.classList.add(view.isElemWideOrTall(view.trackImage));
+            view.trackImage.classList.add('animate-img-entrance');
+            view.trackImage.addEventListener('animationend',controller.animateImageEntranceEnded,false);
             model.currentTrackId = id;
-            controller.trackImage.trackId = id;
+            view.trackImage.trackId = id;
         },
     animateImageEntranceEnded:
         (event) => {
             event.target.classList.remove('animate-img-entrance');
-            controller.playPauseToggleButton.setAttribute('active',true);
+            view.playPauseToggleButton.setAttribute('active',true);
         },
     playTrack:
         (event) => {
             controller.scPlayer.load(`https://api.soundcloud.com/tracks/${event.target.trackId}`,{auto_play:true});
-            controller.playPauseToggleButton.setAttribute('data-current-action','Pause');
+            view.playPauseToggleButton.setAttribute('data-current-action','Pause');
         }
 };
 

@@ -13,9 +13,6 @@
 
 @mixin respond-to($media) {
   @if $media == mobile {
-    @media only screen and (max-width: $mobile) { @content; }
-  }
-  @if $media == mobile-portrait {
-    @media only screen and (max-width: $mobile) and (orientation: portrait) { @content; }
+    @media only screen and (min-width: map_get($min-breakpoints, $mobile)) { @content; }
   }
 }

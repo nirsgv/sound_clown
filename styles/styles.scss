@@ -22,14 +22,20 @@ h1,h2,h3,h4,h5,h6 {
 main{
   display: flex;
   position: relative;
-  width: $main-width;
-  height: 50rem;
+  width: 100%;
+  height: calc(100vh - 16.6rem);
   margin: 0 auto;
+  flex-direction: column;
+
+  @media screen and (min-width: 675px + 1){
+    flex-direction: row;
+    width: $main-width;
+    height: 50rem;
+  }
 }
 
 section {
   //outline: 1px dashed #ddd; /*tmp*/
-  height: inherit;
   width: 40rem;
   display: inline-block;
   margin: 0;
@@ -55,12 +61,20 @@ ul {
 
 /*.search-section*/
 .search-section {
-  width: $search-section-width;
+  width: 100%;
   background-color: $search-section-bkg-color;
+  height: 50vh;
+  @media screen and (min-width: 675px + 1){
+    width: $search-section-width;
+    height: inherit;
+  }
 }
 // intended for all direct children of search-section
 .search-section > div{
   padding: 1rem 2rem;
+
+}
+.data-toggler-and-display-wrp{
 }
 .search-control {
   height: 7rem;
@@ -94,6 +108,12 @@ ul {
 .data-toggler-and-display-wrp {
   height: calc(100% - 10rem);
 }
+.current-results-last-searches-toggler{
+  height: 3rem;
+  @media screen and (min-width: 675px + 1){
+    height: auto;
+  }
+}
 .current-results-last-searches-toggler > li {
   float: left;
   display: inline-block;
@@ -116,28 +136,62 @@ ul {
 
 /*.player-section*/
 .player-section{
-  width: $player-section-width;
+  width: 100%;
+  height: calc(50vh - 16.6rem);
+  @media screen and (min-width: 675px + 1){
+    width: $player-section-width;
+    height: inherit;
+  }
 }
 .play-chosen{
   //height: calc(100% - #{$soundcloud-strip-height});
   height: 100%;
-  //outline: 1px dashed #ccc;
   width: inherit;
+  &:after{
+    content: '';
+    position: absolute;
+    width: 5rem;
+    height: 5rem;
+    bottom: 0;
+    right: 0;
+    pointer-events: none;
+    background-size: 10rem;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-image: url(../assets/img/play-solid.svg);
+    background-size: 2rem;
+    opacity: 1;
+    transition: all 0.35s ease-in-out;
+  }
+  &:hover{
+    &:after{
+      opacity: .9;
+      background-size: 2.5rem;
+    }
+  }
 }
 .play-chosen__link{
   width: inherit;
   height: 100%;
 }
 #image-holder{
+  cursor: pointer;
   &:after{
     content: '';
-    background: linear-gradient(to top, rgba(0, 0, 0, 0.15) 0%, rgba(0, 0, 0, 0) 65%);
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0) 35%);
     position: absolute;
     width: 100%;
     height: 100%;
     top: 0;
     left: 0;
     pointer-events: none;
+    transition: opacity 0.35s ease-in-out;
+    opacity: 1;
+  }
+  &:hover{
+    &:after{
+      opacity: .5;
+    }
   }
 }
 .play-chosen__image-crop{
@@ -184,9 +238,13 @@ ul {
   display: none;
   padding: 1.2rem 0;
   overflow-y: auto;
-  max-height: 36rem;
+  overflow-y: auto;
+  max-height: calc(100% - 3rem);
   &.displayed{
     display: block;
+  }
+  @media screen and (min-width: 675px + 1){
+    max-height: 36rem;
   }
   li {
     font-size: 1.4rem;
