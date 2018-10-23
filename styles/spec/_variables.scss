@@ -6,8 +6,10 @@ $min-breakpoints: (
   desktop: map-get($devices, desktop) + 0.1,
   mobile: map-get($devices, mobile) + 0.1
 );
+$moblie-min-bp: 375px + 1;
 
-
+$body-bgc: #eee;
+$main-font-family: 'Open Sans', sans-serif;
 $main-width: 80rem;
 $search-section-width: 30rem;
 $player-section-width: calc(#{$main-width} - #{$search-section-width});
@@ -16,5 +18,8 @@ $search-section-bkg-color: #e0e0e0;
 $search-control-bkg-color: #f4f4f4;
 $paginate-strip-bkg-color: #ccc;
 
+$sc-iframe-height: 16.6rem;
+
+$list-text-color: #666;
 $input-border-color: #dfdfdf;
 $input-highlight-border-color: #bbb;
