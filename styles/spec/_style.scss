@@ -176,6 +176,7 @@ ul {
     }
   }
   &.loaded-item{
+    cursor: pointer;
     &:after{
       opacity: 1;
     }
