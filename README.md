@@ -1,5 +1,5 @@
 # sound_clown
-A simple vanilla-js-made ui interface, to fetch and play tracks using soundcloud's api.
+A simple vanilla-js-made ui interface, to fetch and play tracks using soundcloud's api and database.
 
 Contributor: nir segev.
 
